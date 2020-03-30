@@ -64,7 +64,6 @@ main()
 	strcpy(hour[21], "nine");
 	strcpy(hour[22], "ten");
 	strcpy(hour[23], "eleven");
-	strcpy(hour[24], "midnight");
 
 	tloc = time(0) ;
 	ltime = localtime(&tloc) ;
@@ -80,10 +79,10 @@ ltime->tm_hour=0;
 ltime->tm_min=0;
 for(hours=0; hours<24; ltime->tm_hour=hours++)
 {
-for (minutes=0; minutes<60; ltime->tm_min=minutes++)
-{
-ltime->tm_hour=hours;
-printf("hours=%d, minutes=%d\n", ltime->tm_hour, ltime->tm_min);
+	for (minutes=0; minutes<60; ltime->tm_min=minutes++)
+	{
+	ltime->tm_hour=hours;
+	printf("hours=%d, minutes=%d\n", ltime->tm_hour, ltime->tm_min);
 #endif
 
 	if (ltime->tm_min == 0) {
