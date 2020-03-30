@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+### TERM=menu
+export BASE_INSTALL=/home/uian.jones/menu_system
+alias less=pg
+export MENUCONF=${BASE_INSTALL}/etc/menu.conf
+export MENUDIR=${BASE_INSTALL}/usr/local/menus/menus
+export HELPDIR=${BASE_INSTALL}/usr/local/menus/help
+export MENU_BIN=${BASE_INSTALL}/usr/local/menus/bin
+export menu_log=/var/log/menu.log
+export PATH=$MENU_BIN:$PATH
+if [ $# -eq 0 ]; then
+	/home/uian.jones/src/menu_source/menu -d 9 iansmenu 2> /tmp/iansout
+else
+	/home/uian.jones/src/menu_source/menu -d9 $* 2> /tmp/iansout
+	# $MENU_BIN/menu $*
+fi

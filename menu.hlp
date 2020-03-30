@@ -1,0 +1,90 @@
+TABLE_OF_CONTENTS
+menu.hlp	menu		Menus      - Help using menus.
+menu.hlp	popmenu		Pop-menus  - Help using popmenus.
+menu.hlp	GETINPUT	Input      - Editing commands.
+menu.hlp	help		Help       - Using help.
+TABLE_OF_CONTENTS
+
+
+menu
+.TITLE Menu Help
+
+  \RMENU COMMANDS:\N
+          M       \D-  Go directly to main menu.\N
+          P       \D-  Return to previous menu.\N
+          G or ^g \D-  Go directly to a specific menu.\N
+          H or ?  \D-  This help screen.\N
+          ^r      \D-  Redraw the screen.\N
+          E       \D-  Exit.\N
+          !       \D-  Enter a unix command.\N
+
+  \RSELECTING OPTIONS:\N
+          -  Use "up arrow key", "^k", "down arrow key", "^j" or
+             "tab key" to place bar on option and press "return".    
+
+                  or
+
+          -  Enter option number and press "return".
+
+menu
+
+
+popmenu
+.TITLE Pop-Up Menu Help
+SELECTING OPTIONS:
+    Use "up arrow key", "^k", "down arrow key", "^j", 
+    to place bar on option and press "return".
+
+    or
+
+    Enter the first character of the option you
+    wish to select and press "return".
+
+    KEY_CANCEL (esc)   - Cancel selection.
+popmenu
+
+
+GETINPUT
+.TITLE GETINPUT Help
+Mover Keys:
+        KEY_RETURN  (^m)    Traverse forwards through the fields.
+        KEY_DOWN  (^j)      Traverse forwards through the fields.
+        KEY_UP  (^k)        Traverse backwards through the fields.
+        KEY_TAB  (^i)       Fast forward through the fields.
+        KEY_BTAB            Fast reverse through the fields.
+Field Editing Keys:
+        KEY_BEG  (^b)       Place cursor at beginning of field.
+        KEY_END  (^e)       Place cursor at end of input in field.
+        KEY_RIGHT  (^l)     Forward space within the field.
+        KEY_LEFT  (^h)      Backspace within the field (non-destructive).
+        KEY_BACKSPACE  (^h) Same as KEY_LEFT.
+        KEY_EOL  (^d)       Delete from cursor to end of field.
+        KEY_DL  (^c)        Clear field and home cursor.
+        KEY_DC  (^x)        Delete a character.
+        KEY_IC  (^t)        Toggle between type-over and insert mode.
+Other Keys:
+        KEY_HELP  (?)       Display help screen.
+        KEY_REFRESH  (^r)   Redraw the screen.
+        KEY_ACCEPT  (^a)    Accept all input and exit screen.
+        KEY_CANCEL  (esc)   Cancel all input and exit screen.
+        KEY_SAVE  (^f)      Save screen to a file.
+        KEY_PRINT  (^p)     Print screen to lp.
+GETINPUT
+
+
+help
+.TITLE Using Help
+Help displays consist of a description displayed in a window.
+If the description doesn't fit in the window, the Up Arrow and
+Down Arrow keys can be used to view a few more lines of the 
+display.  Exiting the help system will return the display to 
+the state it was in when you asked for help.
+
+   The following keys are active in help:
+        KEY_CANCEL  (esc)   Exit help.
+        KEY_DOWN  (^j)      View a few more lines.
+        KEY_UP  (^k)        View the previous lines.
+        KEY_BEG  (^b)       Display first page.
+        KEY_END  (^e)       Display last page.
+        KEY_TOC  (^t)       Display help table of contents.
+help

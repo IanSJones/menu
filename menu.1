@@ -1,0 +1,1600 @@
+.TH MENU 1
+.SH NAME
+.TP 12
+menu 
+\- a menu program
+.SH SYNOPSIS
+.B "menu  [ -p row,col ] [ -d number ] [ -keys ]  menufile"\n
+
+.B "menuuser  -u username [ -keys ]  menufile"
+
+.SH DESCRIPTION 
+\fBMenu(1)\fP is an easy-to-use menu utility that allows
+users to operate an application system in a user-friendly, menu-driven
+environment.  Any application software, regardless of source language or
+operating system process can be executed from menus designed with
+\fIMenu(1)\fP.
+
+\fBMenuuser(1)\fP will walk through every sub-menu defined for that
+particular user and snapshot each screen to the file \fB/tmp/username_menulist\fP.
+This is usefull to see actually what options are presented to that user
+as menu items are shown depending (optionally) on certain rules.
+
+For systems requiring multi-level menus for a diverse number of users,
+\fIMenu(1)\fP allows a single menu to call any number of submenus, which
+may in turn call more menus or execute any number of processes.
+Menus can be nested to any level without increasing
+startup time or memory requirements.
+
+Menus can also be designed to function as user-friendly data entry 
+screens for capturing data, which can then be used as input for a process.
+Text items such as "displays", "choices" and "responses" can be added within 
+any of these defined boundaries, and will automatically adjust if any 
+boundaries are changed.  Special screen attributes, such as highlighting and
+reverse video, can be defined to add special emphasis.
+
+The menu script file contains all of the menu instructions, and can
+be edited using a standard system editor, such as vi.  Menus and utilities
+can be added or deleted by editing the appropriate script file, even while
+the menu is in use.  
+
+Menu provides flexibility in designing how you want your
+menus to look, yet strives to maintain some consistency and functionality from
+one menu to another.  
+.PP
+Menu is keyword driven.  
+The menufile (script file) is parsed and when a defined keyword is found the
+associated function for that keyword is called.
+The menufile is searched for in $MENUDIR or /usr/local/prospmenu by default.
+Menufile should be in basename format, use
+MENUDIR to get the full path name.
+If the real userid is 0 (i.e.. root) then MENUDIR is forced to
+/usr/local/prospmenu/menus.  This is a security precaution to prevent a
+suid menu program from interpreting and subsequently executing commands from a
+user-written menu file.
+.PP
+The "menu.hlp" file contains the on-line help screen.
+There is a keyword which can be used in the main help definition file 
+called .HELPFILE.  This will change the help file name to whatever defined
+by this basename format name.  This file's format still has to be the same
+as that referenced later as "menu.hlp".
+If used at all, the name will remain as that last defined so I guess
+it's safer to use it in ALL main menus or not at all.
+
+The help file is
+first searched for in the current directory, then in getenv("HELPDIR"),
+then in getenv("MENUDIR").  Look in the directory where menu is installed
+for the help file (menu.hlp).  If you want to customize the help file, copy it
+to another directory and set HELPDIR.
+
+Menu uses curses(3X) so you need to have your TERM variable set.
+
+.SS Command Line Options
+.TP 6
+-p row,col
+Tells menu what row and column (upper left corner) you
+want the pop-up menu, for goto menu names, to appear.
+See .GNAME below.  Default is [6,8].  I would try to keep the pop-up 
+menu high and to the left, 
+there is no real intelligence built in if the number or length of GNAMES puts
+it off the screen.
+.TP 6
+-d
+Prints debugging information to stderr. If number=1 it gives normal debugging,
+if greater than 1 then it includes memory allocation/deallocation details
+(not for the feint hearted).
+.TP 6
+-keys
+Determine the various key values on your keyboard.  This displays what is
+returned from a curses getch() call with the keypad turned on.
+This information can be used to custom tailor your .menuinit file.
+
+.SS Syntax Used In This Man Page
+The position of the arguments for the various keywords is important.  All
+arguments including any
+optional arguments that are used must appear in the position shown in
+the synopsis for that keyword, unless stated otherwise.
+
+.TP 6
+[ ]
+Throughout this man page the "\fB[ ]\fP" indicate that what is enclosed is 
+optional.
+.TP 6
+[ \\\\\\\\ ]
+A keyword synopsis that has "\fB[ \\ ]\fP" as the last argument 
+indicates that the continuation 
+character (\\) may be placed as the last character on the line to continue 
+to the next line.
+.TP 6
+[!]
+Indicates a conditional enviroment variable setting.  If the variable is not
+already set (getenv(variable) == NULL) then the variable is set to the specified
+value, otherwise it is not changed.  Same operation as doing a 
+shell ${parameter:-word}.
+
+.SH KEYWORD SYNOPSIS
+The following keywords are placed in a menu script file to tell \fImenu(1)\fP
+what to do.
+
+
+\fB[!]variable=value\fP
+.IP "" 6
+A environment variable assignment statement.  The environment variable defined
+by \fIvariable\fP is set equal to the \fIvalue\fP specified.  The variable is 
+set as soon as it is found while parsing the menufile, it becomes
+part of the menu environment so that all subsequent programs that are spawned
+will inherit these variables.
+
+The character $ in \fIvalue\fP is used to introduce substitutable 
+parameters, in the form of ${\fIparameter\fP}.
+The value, if any, of the \fIparameter\fP is substituted.  The braces are 
+required only when \fIvalue\fP is followed by a letter, digit, or 
+underscore that is not to be interpreted as part of its name.
+
+The character ~ in \fIvalue\fP is used to introduce tilde expansion.  
+Menu checks the value
+to see if a "~" appears after the "=".  If it does menu checks the word that
+follows up to a "/".  A "~" by itself equals $HOME. A "~user" equals home(user).
+
+A pair of grave accents (`command`) introduce command substitution.  The
+standard output from the \fIcommand\fP is assigned to the variable.
+
+Warning: If you reset a environment variable in a GETINPUT that you have
+defined here.  The variable will get reset back to this value when the menufile
+is re-parsed, unless you use the "!".
+. \ --------------------------------------------------------------------------
+.PP
+\fB###\fP  Comment text.
+.IP "" 6
+A comment line.  The entire line is ignored.  May be placed anywhere in
+the menufile.
+. \ --------------------------------------------------------------------------
+
+.PP
+\fB###NAME\fP  Alias menu name.
+.IP "" 6
+This optional comment line is used by the MenuAccess(1) program to display
+a different name on the screen for the menu instead of the unix file name,
+more user friendly.  This is recommended if you plan to use MenuAccess.
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.AUTHORIZE\fP  logname  [ logname ... ]  [ \\ ]
+.IP "" 6
+Authorize only certain login's to be able to access a menu.  For example
+application administration functions to be done by application administrators
+only.  This can be done by putting those functions in one menu and
+using the .AUTHORIZE keyword.  \fILogname\fP is the login name of a user you
+want to allow to see this menu.  Only the
+first .AUTHORIZE keyword will be used, so all lognames must be listed on 
+that line.
+If no .AUTHORIZE is given in menufile then that menu is open to every one.
+If a .AUTHORIZE is given in the main menu (first) then restriction would apply
+to someone trying to get into the application.
+.br
+This keyword is used by the \fIMenuAccess(1)\fP program.
+.br
+
+.br
+This keyword authorizes a login at the menu level.  If you need to authorize
+at the option level you could try something like this. (see .SYSTEM)
+.nf
+	.SYSTEM  if [ $LOGNAME = "fred" ] \\
+                    then  run_program \\
+                   else  echo "Sorry, Not Authorized." \\
+                 fi
+	Option Description Text.
+.fi
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.BANNER\fP [ linecount ]
+ .section  text
+.fi
+.IP "" 6
+Draws a banner page.  Linecount should be the number of lines
+following .BANNER, each consisting of ".section text".  Section
+may be either .U to display text in upper section or .L to
+display text in lower section.  Only four lines in each section
+allowed.
+The idea behind this was to provide some kind of welcome (to your
+application) screen.
+If .BANNER is used it should be the first keyword in menufile.
+This one is really worthless!  It's too slooooow.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.LINETYPE main_line_type shadow_line_type\fP
+.fi
+.IP "" 6
+Specify the box line types.  Once this keyword has been parsed
+all subsequent menus will use the specified line type.
+You can also set your line type in your .menuinit file but this
+option will be overridden if a .LINETYPE keyword is found in the
+menu source file.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.HELPFILE filename\fP
+.fi
+.IP "" 6
+Defines the help file name for the actual menu being displayed.
+This has been added to allow you to give help text relating to
+each menu option being presented as opposed to a general help
+file which only tells you how to navigate and not what to expect
+when an option is selected.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.BOX\fP [ StandoutLine ] [ DumbLine ]
+.IP "" 6
+Draws a box around the menu window.
+The \fIBOX\fP will use the top line of the screen so the first \fI.TITLE\fP
+line should be null.  The box will also use the first and last column,
+your title lines should take that into account.  You get a different effect
+depending on whether you place the .BOX before (with a .LINE) or after 
+the .TITLE lines.
+
+The arguments specify what type of line you want to use to draw the box with.
+The second argument specifies the type of line to use to dim the menu.
+.br
+Any one of the following may be used:
+.nf
+	DumbLine	\fIDefault line used in dimming.\fP
+	StandoutLine	\fIDefault line.\fP
+	SingleLine	\fIAlternate character line.\fP
+	MosaicLine	\fIAlternate character line.\fP
+	DiamondLine	\fIAlternate character line.\fP
+	DotLine		\fIAlternate character line.\fP
+	PlusLine		\fIAlternate character line.\fP
+.fi
+The alternate character lines are dependant on your terminal (try "menu -k").
+Not all terminals have the capability to draw these lines.
+If one of the alternate character lines is specified
+and it is found that the terminal does not support it, the line will be
+drawn in StandoutLine.  Check your terminal manual and the terminfo definition
+for alternate character set.
+
+Not supported in a \fI.POPMENU\fP menu.  
+All pop-up menus automatically get boxed.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.CURSOR\fP [-]row [-]column
+.fi
+.IP "" 6
+Where do you want the cursor to appear on the screen?  If no \fI.CURSOR\fP
+is specified it defaults to row=lastrow-2, column=lastcol-4.  
+See explanation under .TEXT for negative row/column.
+The \fI.CURSOR\fP
+is only active for the current menu.  If you want the same cursor location
+in every menu you will need to put a \fI.CURSOR\fP in every menu.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.DEFINE_SCREEN\fP  screen_name
+                      window_rows = number
+                      window_cols = number
+                    [ window_pos = number  number ]
+                    [ window_title = string ]
+                    [ window_border = string [ string ] ]
+                    [ helpfile = string ]
+                    [ field_defaults = "command string" ]
+                    [ exit_last_field ]
+
+                      ###  The following repeat for each field.
+
+                      field_name = $string
+                      field_row = number
+                      field_col = number
+                      field_length = number
+                    [ field_label = string ]
+                    [ field_mask = string ]
+                    [ field_edits | field_type = string ]
+                    [ field_range = string | `unix command \\`command\\`..` ]
+                    [ field_min = number ]
+                    [ field_adjust = string ]
+                    [ field_mustenter ]
+                    [ field_prompt = string ]
+                    [ field_terminator = string ]
+                    [ field_noinput ]
+                    [ field_include_mask ]
+ ENDSCREEN
+.fi
+
+.RS 6
+This keyword defines a input screen that can be used with the .GETINPUT keyword.
+If you want the same screen definition in all menus you have
+to place it in all menus (see .INCLUDE).
+The ordering of the arguments is unimportant except for field_name, see below.
+The screen arguments may be placed on the same line if separated by a comma.
+The screen arguments are listed below with the default value
+specified for those arguments that are optional.
+See GetInput(3X) man page for more information.
+
+You may have a maximum of ten screens (MAXSCREENS) defined in any one menu and
+a maximum of twenty fields (MAXFIELDS) for any one screen.  This may be
+increased via the menu.h file.
+
+Screen Arguments:
+.RS 4
+.TP 15
+screen_name
+Screen Name.  Used in .GETINPUT to find screen definition.
+.TP 15
+window_rows
+Number of rows in window.
+.br
+If either window_rows or window_cols is zero, they will be set to the value 
+of (screen_lines-window_pos(row)) and (screen_cols-window_pos(col)).
+If the window_rows, window_cols and window_pos fields are all set to zero
+a full-screen will be used.  See newwin(curses 3X) for more info.
+.TP 15
+window_cols
+Number of columns in window.  See window_rows.
+.TP 15
+[ window_pos ]
+Top left corner to place the window at,  where the first number indicates the
+row and the second number indicates the column.  See window_rows.
+If this argument is omitted then the window will be placed as close to, and to
+the right of, the option that selected it.  This argument is not optional if
+the screen is to be used with a .UNIX keyword.
+There is no intellegence built in to check if you put the window outside 
+the screen dimensions.
+.br
+A environment variable may be specified for the arguments to window_pos.
+.TP 15
+[ window_title = "" ]
+A title to be centered on line zero of the window.  A environment variable may 
+be specified in the title.  The title may not exceed 100 bytes.
+.TP 15
+[ window_border = Standout ]
+The type of box you want around the window.  A standout box is the default.
+See \fI.BOX\fP for description of line types.
+.TP 15
+[ helpfile = "menu.hlp" ]
+A help file assiciated with this window.  The helpfile should be in
+double quotes if it has a "." in the name, and shoud be in basename format.
+The helpfile is first looked for
+in the current directory and then in \fI$HELPDIR\fP.  The fieldname (excluding
+the "$") becomes the tagname in the help file.  See \fIHELP SCREENS\fP in this 
+document for more information.
+.TP 15
+[ field_defaults = "command" ]
+This is used to initialize your fields to a default value at runtime.  
+What goes into the quoted string is a shell command.  What the shell
+command should echo to stdout are the values you want to set your fields to.
+Maximum length of the shell command is 1k.  Each field default is delimited by
+a space character.  As a result 
+field values composed of multiple strings should be quoted.  The quote should
+also be escaped. If the number of
+values echoed to stdout is less than the number of screen fields the remainder
+of the screen fields are set to "".  To force a field value to "" echo NULL to
+stdout.  If a MENU or SET is used with field_range you use NULL to skip over
+that field.
+.nf
+For example:
+Assuming $SNAME is a multiple worded value to be assigned to a field.
+
+	field_defaults = "cat \fIfilename\fP |
+		while [ $? -eq 0 ]
+		do
+			read LINE
+			[ $? -ne 0 ] && break
+			set $LINE
+			SCODE=$1
+			shift
+			SNAME=$*
+			echo $SCODE  \\\\"$SNAME\\\\"
+		done"
+
+or
+
+    field_defaults = "echo NULL NULL 3 NULL yes"
+
+.fi
+.TP 15
+[ exit_last_field ]
+If exit_last_field is specified, after the user presses return on the last field
+the input will be accepted and the user will exit the screen (this is as if the
+user had pressed the KEY_ACCEPT).  Don't ask me Lee wanted it.
+.TP15
+field_include_mask
+If this option is present and the \fIfield_type\fP = DATE then the
+\fIfield_mask\fP will be included in the content of the environment
+variable \fIfield_name\fP.
+.TP 15
+field_name
+The environment variable name that the data will be assigned to.  The field_name
+must begin with a "$", just to remind you that it is a environment variable 
+that I 
+am using.  Although, the "$" is not actually used in the environment variable 
+name.  This screen argument (field_name) tells menu that you are starting 
+a new field
+definition.  ..soooo...  It has to be the first argument for a field.  
+All other field
+arguments for that field_name follows after, but before the next field_name.
+.TP 15
+field_row
+The row this field will appear on (base zero).
+The window is drawn with a box on the outer edge, row zero and the last 
+row (window_rows) is used for the box.
+.TP 15
+field_col
+The starting column for this field (base zero).  
+If you have a field_label you need to allow enough room to place the label 
+to the left of the field, also, the field terminators.
+The window is drawn with
+a box on the outer edge, so, column zero and the last column (window_cols) 
+is used for the box.
+.TP 15
+field_length
+Maximum length of this field.  For field types SET and MENU this argument
+becomes optional, the field length is automatically set to the longest set value
+in the field_range.
+.TP 15
+[ field_label = "" ]
+A Label to be placed to the left of the field.
+. \ **********************************
+.TP 15
+[ field_mask = "" ]
+Valid masks for a field depend upon the type of field
+you specified, see (field_edits).  Basically the mask says what character
+positions in the field you allow input, what type of character allowed at that
+position, and what kind of a format do you want for the field.
+
+The \fIfield_length\fP should not include character positions where no input
+is allowed in the mask (format characters), because format characters
+are not returned into \fIfield_name\fP unless \fIfield_include_mask\fP is
+specified and \fIfield_type\fP = DATE.  For example, \fIfield_edits = DATE,
+field_mask = "MM/DD/YY"\fP.  The "/" is a format character.  The cursor
+will skip over those positions in the field.  Only the characters typed in
+the MM DD YY positions will be in the environment variable \fIfield_name\fP.
+The field_length would be six.  If the above parameters are used
+and \fIfield_include_mask\fP is set the field_length would be 8 and the
+environment variable \fIfield_name\fP would contain the mask characters too.
+
+Because the mask is so closely tied to the \fIfield_type\fP, a complete
+description of what mask characters are valid with what field types is 
+described under
+\fIfield_type\fP.  Any character in the mask that is not listed as a valid
+mask character for that field type becomes a format character.
+. \ ---------------------------------
+.TP 15
+[ field_edits | field_type = whatever ]
+This argument defines edit checks to be performed on the
+input characters as they are being typed in.  If no mask is provided then
+the field type itself determines the edit checks to be performed on all
+characters in the field.
+.RS 15
+.TP 11
+ALPHANUM
+Any alpha/numeric character is allowed.
+.br
+Valid mask characters:
+.nf
+	space	alpha/numeric
+	A	alpha
+	9	numeric
+	U	alpha only - convert to upper case
+	V	alpha/numeric - convert alpha to upper case
+	H	hexadecimal
+.fi
+.TP
+ALPHA
+Alpha only.
+.br
+Valid mask characters:
+.nf
+	A	alpha
+.fi
+.TP
+NUMERIC
+Numeric only.
+.br
+Valid mask characters:
+.nf
+	9	numeric
+.fi
+.TP
+LOWER
+Convert to lower case.  Only alpha permitted.
+.br
+Valid mask characters:
+.nf
+	L	lower alpha
+.fi
+.TP
+LOWER_AN
+Alpha and numeric permitted.  Convert alpha characters to lower-case.
+.br
+Valid mask characters:
+.nf
+	W	lower alpha/numeric
+.fi
+.TP
+UPPER
+Convert to upper case.  Only alpha permitted.
+.br
+Valid mask characters:
+.nf
+	U	upper alpha
+.fi
+.TP
+UPPER_AN
+Alpha and numeric permitted.  Convert alpha characters to upper-case.
+.br
+Valid mask characters:
+.nf
+	V	upper alpha/numeric
+.fi
+.TP
+HEX
+Only hex characters permitted.
+.br
+Valid mask characters:
+.nf
+	H	???
+	space	???
+.fi
+.TP
+STATE
+Valid two character Post Office abbreviations for the fifty states.
+A edit check is done for a valid state.
+.br
+Valid mask characters:
+.nf
+	SS	two character state
+	S	???
+	space	???
+.fi
+.TP
+ZIP
+Post Office zip code.
+.br
+Valid mask characters:
+.nf
+	99999-9999	???
+.fi
+.TP
+DATE
+A valid date.
+.br
+Valid mask characters:
+.nf
+	MMM	month (JAN, FEB ... DEC)
+	MM	month  (01-12)
+	DD	day  (01-31)
+	YY	year  (00-99)
+	YYYY	full year with century
+.fi
+The mask must contain at least MM and DD.  If no mask is specified for the
+field a default mask of "DDMMYY" is used.
+.br
+Some examples:
+.nf
+	DDMMYY
+	DD/MM/YY
+	YY-MM-DD
+	DD-MMM-YY
+	DD  MM  YYYY
+.fi
+.TP
+TIME
+A time field.
+.br
+Valid mask characters:
+.nf
+	HH	hours  (01-12)
+	MM	minutes  (00-59)
+	SS	seconds  (00-59)
+	TT	tenths  (00-99)
+	II	military hours  (00-24)
+.fi
+Some examples:
+.nf
+	HH:MM
+	HH:MM:SS
+	HH:MM:SS:TT
+	II:MM
+	II:MM:SS
+	II:MM:SS:TT
+.fi
+.TP
+SET
+This field type specifies a set of values that are acceptable in the input 
+field.
+The acceptable values within the set are specified in the \fIfield_range\fP 
+argument.  
+The user selects one of the set values specified in the field range by
+pressing the space bar, which will toggle through the set values,
+or by pressing the first character in the desired value.
+
+The format of the field_range can only be comma separated values 
+(ex. "CA,ID,TX").  
+Range values, such as "1-5", don't work.  You would have to say "1,2,3,4,5".
+.br
+The field length is automatically set to the longest set value in the 
+field_range.
+
+You can also run a unix command as the field range if you want.  Any newline
+characters generated will be replaced by commas as required for a range.
+For example:
+    field_range   =   `ls`
+
+is just the same as:
+    field_range   =   "file1,file2,file3"
+
+
+.TP
+MENU
+This field type is similar to the SET type.  The difference is when the user
+attempts to type something in the field a pop-up menu of available choices
+are displayed, as specified in field_range.  
+The user makes a selection by hi-lighting the choice iby using the cursor keys
+or searching then by pressing return.
+A case sensitive search is started if the user types in any character down
+this list.  As each character is typed in the highlight bar will position
+itself on the matching option.  If the search fails the cursor will go to
+the top of the list and searching will be prepared to start again.
+.br
+See SET type for specifying the field range.
+.TP
+PROTECT
+This X's out the field so that what is entered on the keyboard can not be seen
+on the screen.  Useful for password entry.
+.RE
+. \ ---------------------------------
+.TP 15
+[ field_range = "" ]
+A set of valid ranges permitted for this field. 
+Ranges may be specified as comma separated values ("ONE,TWO,THREE") 
+or as a range ("1-5"), or a combination of both ("1-5,M,E").
+Range values must be compatible with the field_edits that you have selected.
+Maximum length of this field is 1k.
+Note: field_range specified using the hyphen (e.g.. "1-5" or "a-z") cannot
+DEFINE a range to be used in MENU or SET.
+.br
+Some examples:
+.nf
+	"1-10"
+	"5,10,15,16"
+	"1-10,20,M,E,32-40"
+	"CA,TX,ID"
+.fi
+. \ ---------------------------------
+.TP 15
+[ field_min = 0 ]
+If field_mustenter is selected then this is the minimum
+required input.  Otherwise, it is the minimum required input only if they try 
+to input something.
+.TP 15
+[ field_adjust = NOFILL ]
+Indicates whether to adjust the text right or left within the field
+and whether or not to zero or blank fill the field.
+.RS 15
+.TP 15
+NOFILL
+no action.
+.TP
+RTADJ_ZFILL
+right adjust, zero fill
+.TP
+RTADJ_BFILL
+right adjust, blank fill
+.TP
+LFADJ_ZFILL
+left adjust, zero fill
+.TP
+LFADJ_BFILL
+left adjust, blank fill
+.RE
+. \ ---------------------------------
+.TP 15
+[ field_mustenter ]
+Marks this as a must enter field.  Default is that the field is not
+a must enter field.
+. \ ---------------------------------
+.TP 15
+[ field_prompt = "" ]
+Prompt message to be displayed.
+. \ ---------------------------------
+.TP 15
+[ field_terminator = "[]" ]
+Characters to terminate the field with.  The left one goes on the left, 
+the right one goes on the right.  Funny how that works.
+. \ ---------------------------------
+.TP 15
+[ field_noinput ]
+If field_noinput is selected then the cursor will skip over this field.  A
+display only field.
+.RE
+.RE
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.EXIT\fP [ command ]   [ \\ ]
+Exit description text.
+.fi
+.IP "" 6
+Exit menu program.  This can be used if you want to exit as a user
+selectable option.  There should be only one .EXIT per menu.
+.br
+If command is present a system(3S) will be called, with command as the
+argument, before exiting.  The command will be executed even if the user uses
+the "E" command (see help) to exit, as long as there is a .EXIT 
+in current menu.  If you
+want to make sure a particular command gets executed when the user exits you
+should have a ".EXIT command" in every menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.GETINPUT\fP  screen_name
+Option description text.
+.fi
+.IP "" 6
+Displays a predefined screen and prompts for input
+as outlined in the screen definition.
+After the user has pressed the \fIKEY_ACCEPT\fP
+the environment variables, specified by the \fIfield_name\fP argument
+is set equal to the data the user entered in that field.
+If no data was entered for a field the environment variable is set equal to
+"NULL".  The logic behind the "NULL" is to maintain the positional parameters
+when the environment variables are passed to a program.
+If \fIKEY_CANCEL\fP is pressed the environment variables are not set.
+.br
+The screen_name is what was used in the .DEFINE_SCREEN keyword.
+.br
+
+The cursor moves from field to field based upon the order of the fields in
+the \fI.DEFINE_SCREEN\fP keyword.  
+Below is listed the various keys used in a GETINPUT, the action they perform 
+and their default value.  In addition to the default values, if the terminal
+has a associated curses key defined (see curses.h) that key may also be used.
+For example, ^j is the default value to traverse forwards through the fields
+but if the down arrow is defined for KEY_DOWN, in curses, then the down arrow 
+may also be used.  Not all keys may have an associated curses key.
+The "^" indicates press and hold the control key.
+.br
+See \fIMenu Initialization File\fP to customize the values of the keys.
+
+Mover Keys:
+.nf
+ KEY_RETURN  (^m)   Traverse forwards through the fields.
+ KEY_DOWN  (^j)     Traverse forwards through the fields.
+ KEY_UP  (^k)       Traverse backwards through the fields.
+ KEY_TAB  (^i)      Fast forward through the fields.
+ KEY_BTAB           Fast reverse through the fields.
+Field Editing Keys:
+ KEY_BEG  (^b)      Place cursor at beginning of field.
+ KEY_END  (^e)      Place cursor at end of input in field.
+ KEY_RIGHT  (^l)    Forward space within the field.
+ KEY_LEFT  (^h)     Backspace within the field (non-destructive).
+ KEY_BACKSPACE (^h) Same as KEY_LEFT.
+ KEY_EOL  (^d)      Delete from cursor to end of field.
+ KEY_DL  (^c)       Clear field and home cursor.
+ KEY_DC  (^x)       Delete a character.
+ KEY_IC  (^t)       Toggle between type-over and insert mode.
+Other Keys:
+ KEY_HELP  (?)      Display help screen.
+ KEY_F1  (F1)       Display help screen.
+ KEY_REFRESH  (^r)  Redraw the screen.
+ KEY_SHIFT_F6 (sF6) Redraw the screen.
+ KEY_ACCEPT  (^a)   Accept all input and exit screen.
+ KEY_CANCEL  (esc)  Cancel all input and exit screen.
+ KEY_SAVE  (^f)     Save screen to a file.
+ KEY_PRINT  (SHIFT_F4) Print screen to default printer (or $LPDEST).
+ KEY_F2    (F2)     Go to previous menu (as .PREVIOUS)
+ KEY_F10   (F10)    Quit
+.fi
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.GNAME\fP menuname menufile
+.IP "" 6
+Define a goto name for a menu so that the user may go directly to that
+menu by typing in the menu name (G "return" menuname "return").  
+Menuname is the name you want
+the user to input.  Menuname has to be one word and is limited to fifteen
+characters.
+Menufile is the unix filename for that menu.  The .GNAME
+is not accessible to the user until the menufile that you have placed the .GNAME
+in has been displayed.  If all .GNAME's have been placed in the main menu
+then they will all be accessible to the user as soon as the main menu has
+been displayed.
+.br
+Instead of having the user type (G "return" menuname "return") try 
+(control g).
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.INCLUDE\fP [command]  menufile
+.fi
+.IP "" 6
+Include a menu script file.  This is so you don't have to type the same 
+screen definition in all the menu files that you want to use it in.
+Although, it could be used for any menufile.
+It is significant where you place the .INCLUDE in your menufile, depending on
+what is in the .INCLUDE menufile.  Think of it as if you were typing it in
+at this point in the menu file.
+The name of the menufile can be contained in an environment variable if you
+wish.  This variable must begin with a '$' sign for it to be recognised as
+such.  You cannot concatinate any other variables on to the end.
+The \fB.command\fP can be any executable command found in the user's PATH.  It
+can also be a sequence of commands as long as the last word is the menufile,
+for example:
+
+ .INCLUDE       if [ `hostname` = "fred" ]; then           \\
+                        exit 0                             \\
+                else                                       \\
+                        exit 1                             \\
+                fi # menufile.m
+
+If used the return code from this command must equal 0 for the subsequent 
+menufile to be included.  If a non-zero code is returned then the .INCLUDE 
+line will be ignored.
+
+NOTE: The command \fBcan_i_see\fP will invoke a built-in lexical analysis
+program which will check the users real userid against a database of include 
+files.  This database is pointed to by the environment variable MENUCONF,
+an example of the contents of such a file follows:
+
+.nf
+profile helpdeskoper {
+    allow "backcreateimg.i"
+    allow "backepoch.i"
+    .
+    .
+}
+
+profile helpdesksuper {
+    [ helpdeskoper ]
+    allow "ksh.i"
+    allow "solvetest.i"
+    allow "superclearblp.i"
+}
+
+profile super {
+    allow "*"
+}
+
+User permissions are held under $MENUCONF/../menu.conf.d/$LOGNAME
+e.g.. user bpric should have file $MENUCONF/../menu.conf.d/bpric
+that contains...
+
+user bpric    { [helpdeskoper] allow "ksh.i" deny "reboot.i" }
+\.
+\.
+.fi
+
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.LINE\fP [ StandoutLine ] [ DumbLine ]
+.IP "" 6
+Draws a standout line underneath your last title line to
+split the options portion of the screen from the title portion.
+Place after last \fI.TITLE\fP.
+.br
+See .BOX for description of line types.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.MENU\fP menufile  [ GETINPUT include_file screen_name [ GETINPUT include_file screen_name ] ... ]  [ [!]variable=value  ... ]   [ \\ ]
+ Option description text.
+.fi
+.IP "" 6
+Defines this option as a sub-menu.  When user selects this option
+the menu defined in "menufile" will be parsed and displayed.
+
+The [ GETINPUT ] option allows you to display a screen and prompt a user for
+input. See .SYSTEM for a description.  The screen is displayed before parseing
+of the new menu is begun.
+This could be used to prompt a user for a password with a .UNIX in the calling
+menu using checkpass(1) to check permission to run the menu.
+
+A environment variable may be specified in the Option description text.
+.br
+
+The optional variables are environment variables that will be set equal to
+the value specified when the user selects this option.  This can be used
+to pass data to a sub menu.  Maximum length of the .MENU line is 512 (BUFSIZ) bytes.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.POPMENU\fP [ NoDim ] menufile [ row column ] [ [!]variable=value  ... ]  [ \\ ]
+ Option description text.
+.fi
+.IP "" 6
+Defines this option as a pop-up menu.  When user selects this option
+the script file "menufile" will be parsed and displayed.  
+The optional row and column (upper left corner) is where you want the pop-up 
+menu to pop-up.  If row and column is omitted then the menu will be placed
+as close to the option, that is selecting it, as possible.
+See \fI.SETENV\fP for \fIvariable=value\fP.
+
+The [ NoDim ] flag tells menu not to dim the box on a inactive menu.  The
+default is to dim inactive menus.  That way the user can easily see what
+menu they are working with.
+
+A environment variable may be specified in the Option description text.
+
+The options in a pop-up menu can be selected by hi-lighting the option
+and pressing return, or ESC to cancel.  The pop-up menu goes away after
+an option has been selected and you are put back in your calling menu 
+(the calling menu is reparsed).
+This keyword was provided for those options where the user would go over to
+a menu select an item then return back.  A printer select menu would be ideal
+for this keyword.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.PREVIOUS\fP [ command ]   [ \\ ]
+Previous menu description text.
+.fi
+.IP "" 6
+Go to the previous menu.  This can be used if you want to go back as a user
+selectable option.
+.br
+If command is present a system(3S) will be called, with command as the
+argument, before going back.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.SETENV\fP  [ BELL ] [!]variable=value [ [!]variable=value ... ] [ message ]   [ \\ ]
+ Option description text.
+.fi
+.IP "" 6
+When the user selects this option it will set
+a variable to a value in the the current environment (i.e. the menu
+environment).  This is useful if you want something like a printer menu
+listing available printers and changing the $LPDEST so all print jobs
+will go to the new printer.
+The \fImessage\fP argument is what is printed to the screen so the user
+can get feed back that his selection did something.
+The \fIBELL\fP argument provides an audible beep if the variables were
+set successfully.
+
+note:
+.br
+    If the message has a "=" sign in it menu will think it is a
+    "variable=value" and will try to set a environment variable.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.SPACE\fP
+.fi
+.IP "" 6
+Put a space in between options.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.SYSTEM\fP [ [ variable=value ... ] GETINPUT include_file screen_name [GETINPUT include_file screen_name ] ... ] command   [ \\ ]
+ Option description text.
+.fi
+.IP "" 6
+Defines this option as a system call.  When user selects this option
+a system call will be executed, with command as the argument. Since the command
+is a argument to system(3S) anything you can type at the $ prompt you can
+put in the command.
+Maximum length of \fIcommand\fP is 1k.
+A environment variable may be specified in the Option description text.
+
+The [ GETINPUT ] option allows you to display a screen and prompt a user for
+input that could be used as command line arguments to the command.  
+The screen_name is a defined screen name.
+The include_file is the file within which the screen definition either resides
+or is created.  This file is examined just like if a .INCLUDE.  This means that
+a dynamic screen can be built (using .UNIX) and .INCLUDE'd upon selection of that
+menu item.
+
+For example the source menu can contain:
+
+    .SYSTEM GETINPUT test.g test_screen blah blah
+    Test Option
+
+The file test.g will contain:
+
+    .UNIX echo "screen_name=test_screen" > fred;
+        .
+        .
+        .
+    list=`lpstat -a | grep accepting | grep -v "not accepting"
+    | awk '{ print $1 }' | sort | uniq`;
+    echo "field_range = \\"\$list\\""  >> fred
+
+    .INCLUDE fred
+
+HOWEVER... Since the above solution is a pain in the bottom you can
+           now use the backquoted option of 'field_range' instead.
+
+See .GETINPUT and .DEFINE_SCREEN for more information.
+.br
+The optional \fIvariable=value\fP arguments associated with the GETINPUT
+are set at runtime, when the user selects this option.  This could be
+used to have a dynamic window_title in your getinput screen.
+
+Example: Say you need to prompt the user for a $DATA field then pass that 
+field into
+your program, lock the program so that program cannot be run until this one 
+finishes
+and you want to kick the program off in the back ground.  You
+could try something like this (see lock(1),unlock(1)):
+.nf
+   .SYSTEM     GETINPUT screenfile  screen1 \\
+		lock program_name; \\
+		if [ $? -eq 0 ] \\
+		   then	(nohup program_name $DATA; nohup unlock program_name)& \\
+		   else	echo "Program Already Running."; \\
+			echo "Press [ Return ] to continue ...\\c"; \\
+			read reply \\
+		fi
+   Option Description Text.
+
+
+
+Note: No error checking is done for \fIcommand\fP.  If error checking is
+important for your application you will need to build it into 
+your \fIcommand\fP.
+.fi
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.TEXT\fP [-]row [-]column
+ Text goes on this line.
+.fi
+.IP "" 6
+Allows you to put any text at a specified row and column on the \fIstdscr\fP 
+screen (base 0).
+A negative row and/or column indicates number of rows from the bottom of the
+screen or number of columns from the right of the screen (relative addressing).
+For example, \fI.TEXT -4 -20\fP will display text on the 4th row from the
+bottom and the 20th column from the right.  This could be useful if your users
+are using different sized terminals/windows.  If the row and/or column are 
+greater than the window size the text will get displayed on the last row or
+last column of the screen.
+
+This keyword could be used to
+place a prompt text next to the cursor.  The \fI.TEXT\fP is only active for
+the current menu.  If you want the same text to appear in every menu you
+will need to put a \fI.TEXT\fP in every menu.
+Terminal attributes may be placed in the text line (see Terminal Attributes).
+
+A environment variable may be specified within the text.
+
+The last line of the screen is used to report error messages, like 
+\fIInvalid Option\fP.  Your text will probably get erased if put on the last
+line.
+. \ --------------------------------------------------------------------------
+
+.PP
+.nf
+ \fB.TITLE\fP
+ Title Line text.
+.fi
+.IP "" 6
+Display a title line top of menu.
+Title lines will start at row zero.
+Multiple .TITLE lines may be defined up to MAXTITLE (6) defined in
+menu.h file.
+
+The title line consists of three sections defined as follows:
+.br
+left text...center text...right text
+.br
+Text you place in the three sections will be either left justified,
+centered, or right justified on the screen.  The "\fB...\fP" are used to
+separate the sections.
+
+.RS 6
+.PP
+A substitutable variable may be specified within the title line text.
+The character $ is used to introduce substitutable 
+parameters, in the form of ${\fIparameter\fP}.
+The value, if any, of the \fIparameter\fP is substituted.  The braces are 
+required only when \fIparameter\fP is followed by a letter, digit, or 
+underscore that is not to be interpreted as part of its name.  See sh(1) 
+for more info.
+
+.TP 6
+$DATE
+may be placed anywhere in title text and the system date (dd/mm/yy) will
+be displayed.
+
+.TP 6
+$TIME
+may be placed anywhere in title text and the system time (hh:mm zz) will 
+be displayed.  This display will be updated as time goes on.
+
+.TP 6
+$GCOS
+may be placed anywhere in title text and user information will be displayed
+as defined in the comma-separated 5th field if the passwd field like so:
+.br
+Fred Bloggs(123) in IT on host
+.br
+where the passwd entry will be:
+.br
+fbloggs:asdfghjklasdf:3123:34:Fred Bloggs,IT,0123,Head Office,,:/home/fbloggs:/bin/ksh
+
+.TP 6
+$CODE
+may be placed anywhere in title text and the location of the user will be
+displayed like so:
+.br
+TIA Code: Head Office
+
+.TP 6
+$ABOUT
+may be placed anywhere in title text and will display a more relaxed view
+on what time of day it is.  This display will be updated as time goes on.
+For example:
+.br
+It's just after ten past two
+
+.TP 6
+$MAIL
+The \fI$MAIL\fP is a special environment variable.  This turns on the mail
+notification facility.  $MAIL may be placed anywhere in the title text and when
+the user has mail to be read the word "\fBMAIL\fP" will be displayed in
+reverse video at that location in the title line, with an audible beep.
+The MAIL environment variable needs to be set to the users mail file, ex.
+"MAIL=/usr/mail/pjc".  The environment variable \fIMAILCHECK\fP is used to
+determine how often to check for mail.  See mail(1).
+.br
+If you have a hierarchy of menus for your application \fI$MAIL\fP only needs
+to be in the first menu.
+
+Warning: If menu is run with the set uid bit set, menu will be unable to
+determine if your mail is being forwarded, because it won't have read
+permission on your mail file, and \fIMAIL\fP will be displayed all the time.
+.TP
+Terminal Attributes
+Attributes may be specified anywhere in the title text as follows:
+.nf
+\\S = Standout
+\\B = Bold
+\\U = Underline
+\\D = Dim
+\\R = Reverse Video
+\\L = Blink
+\\N = Normal
+
+example: \\RThis text is reverse video.\\N Now normal.
+
+note: Terminal attributes are terminal dependent.
+Berkeleys' version of curses only supports Standout.  Attributes may
+also be combined.
+.fi
+
+For \fI.POPMENU\fP there is no left,center,right sections.  The title is
+centered.  You can have only one \fI.TITLE\fP in a pop-up menu.  No attributes
+and/or environment variables are supported in the title for pop-up menus.
+.RE
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.UNIX\fP  [ REDRAW ]  [ GETINPUT screen_name ]  command  [ \\ ]
+.IP "" 6
+A system(3) call with command as the argument is executed immediately 
+when found while parsing the 
+menufile.  Can be used to set function keys on terminal.  Warning: if
+you use this to set function keys and the function keys are changed in
+another program, they do not get reset back to what they were in the menu.
+Maximum length of command is 512 (BUFSIZ) characters.
+
+The [ GETINPUT ] option allows you to display a screen and prompt a user for
+input, before the command is run.
+The window_pos argument to DEFINE_SCREEN must be specified in order to use
+the screen here, because, menu is unable to automatically figure out where to 
+put the screen because this is happing during the parsing stage.
+
+The [ REDRAW ] flag instructs menu to redraw the screen after your command
+has been executed.  This is recommended if your command writes anything to
+the screen.
+
+Diagnostics
+.RS 10
+The following actions are taken by menu depending on what exit code your
+command uses.
+.TP 15
+0
+AOK. Continue to parse the next keyword.
+.TP 15
+1
+Quit/Exit the menu program.
+.TP 15
+4
+Return to previous menu and display the error message 
+"Not Authorized to run menu.".
+.TP 15
+anything else
+Quit parsing this menu and return to previous menu.  No message.
+.RE
+
+.RS 6
+Example:  Authorize menu access.
+.nf
+         .UNIX grep $LOGNAME access_table >/dev/null 2>/dev/null \\
+		[ $? -ne 0 ] exit 4 \\
+		exit 0
+.fi
+
+Example:  Build a menu script file at run time.
+.nf
+       ###  Printer Selection Menu
+       ###  Build a .POPMENU of available printers connected to a system.
+
+          .UNIX echo ".TITLE" > printers.m; \\
+	         echo "Printer Menu" >> printers.m; \\
+	         echo ".TEXT 23 0" >> printers.m; \\
+	         echo "Select A Printer." >> printers.m; \\
+	         lpstat -p | awk '{ print $2 }' | \\
+	         for i in `cat` \\
+	         do \\
+		     echo ".SETENV LPDEST=$i  Printer ($i) selected." >>printers.m; \\
+		     echo "$i" >> printers.m; \\
+	         done; \\
+	         exit 0
+
+          .POPMENU printers.m  10 50
+          Select Default Printer.
+.fi
+.RE
+. \ --------------------------------------------------------------------------
+
+.PP
+ \fB.WINDOW\fP  first_row  last_row  first_col  last_col  [ heading ]
+.IP "" 6
+Defines a window area (rectangle) to display the options that follow this 
+keyword (up to the next \fI.WINDOW\fP or end of file).
+The options are centered between first_row / last_row
+and between first_col / last_col.
+The \fIrows\fR and \fIcolumns\fR are absolute (base 0) and inclusive.  
+It is up to you
+to make sure they don't overlap (unless that's what you want), and
+that it is large enough to hold the options that follow.
+The optional \fIheading\fR is text you wish centered over the window area
+(rectangle).
+It is
+displayed on \fIfirst_row\fR minus one.
+The heading may contain terminal attributes as described under \fI.TITLE\fR.
+Your \fI.WINDOW\fP keywords should be placed after all \fI.TITLE\fP(s).
+.br
+For example suppose you want two columns of options on the screen, one
+of which will have a heading:
+.nf
+ .WINDOW 0 23 0 39
+1. this option in left column
+2. this option in left column
+ .WINDOW 10 23 40 79 \\R REPORTS \\N
+3. this option in right column
+
+.fi
+If no .WINDOW is used a default of .WINDOW 0 screen_rows 0 screen_cols 
+is used for all options.
+
+Not supported in a \fI.POPMENU\fP menu.
+. \ --------------------------------------------------------------------------
+
+.SH HELP SCREENS
+The default help file for menu(1) is \fImenu.hlp\fP.  Additional help files
+may be used in a GETINPUT screen.  The following describes the the syntax of
+a help file.
+
+\fBtagname\fP
+.br
+[ .TITLE   A Title May Be Placed Here. ]
+.br
+A tagname identifies a help screen and must be on a line by itself.
+.br
+The text (with optional terminal attributes) to be displayed for this tagname 
+is placed between the two tags.  Don't use tabs to space the text 
+(it don't work), you have to put in hard spaces.
+More than one tagname may be placed in a help file.
+Any text outside of a tagname is ignored.
+.br
+\fBtagname\fP
+
+
+The \fITABLE_OF_CONTENTS\fP tagname is a special tag describing what
+is to be contained in the table of contents for help.  The following is the
+syntax for this tagname.
+.nf
+\fBTABLE_OF_CONTENTS\fP
+helpfile   tagname   description
+helpfile   tagname   description
+	etc...
+\fBTABLE_OF_CONTENTS\fP
+.fi
+
+
+Below is shown the default help file for menu(1)  (menu.hlp).
+It has four tagnames in it (TABLE_OF_CONTENTS, menu, popmenu, GETINPUT 
+and help).  This file may be customized to fit your needs.
+
+.nf
+\fBTABLE_OF_CONTENTS\fP
+menu.hlp	menu		Menus      - Help using menus.
+menu.hlp	popmenu		Pop-menus  - Help using popmenus.
+menu.hlp	GETINPUT	Input      - Editing commands.
+menu.hlp	help		Help       - Using help.
+\fBTABLE_OF_CONTENTS\fP
+
+
+\fBmenu\fP
+ .TITLE Menu Help
+
+  \\RMENU COMMANDS:\\N
+          M       \\D-  Go directly to main menu.\\N
+          P       \\D-  Return to previous menu.\\N
+          G or ^g \\D-  Go directly to a specific menu.\\N
+          H or ?  \\D-  This help screen.\\N
+          ^r      \\D-  Redraw the screen.\\N
+          E       \\D-  Exit.\N
+          !       \\D-  Enter a unix command.\\N
+
+  \\RSELECTING OPTIONS:\\N
+          -  Use "up arrow key", "^k", "down arrow key", "^j" or
+             "tab key" to place bar on option and press "return".    
+
+                  or
+
+          -  Enter option number and press "return".
+
+\fBmenu\fP
+
+\fBpopmenu\fP
+ .TITLE Pop-Up Menu Help
+SELECTING OPTIONS:
+    To select an option press the "up arrow key",
+    "k", "down arrow key", "j" to place bar on
+    option and press "return".
+
+    KEY_CANCEL (esc)   - Cancel selection.
+\fBpopmenu\fP
+
+\fBGETINPUT\fP
+ .TITLE GETINPUT Help
+Mover Keys:
+        KEY_RETURN  (^m)    Traverse forwards through the fields.
+	.
+	. (etc.  see GETINPUT)
+	.
+        KEY_PRINT  (^p)     Print screen to lp.
+\fBGETINPUT\fP
+
+\fBhelp\fP
+ .TITLE Using Help
+Help displays consist of a description displayed in a window.
+If the description doesn't fit in the window, the Up Arrow and
+Down Arrow keys can be used to view a few more lines of the 
+display.  Exiting the help system will return the display to 
+the state it was in when you asked for help.
+
+   The following keys are active in help:
+        KEY_CANCEL  (esc)	Exit help.
+        KEY_DOWN  (^j)	View a few more lines.
+        KEY_UP  (^k)	View the previous lines.
+        KEY_BEG  (^b)	Display first page.
+        KEY_END  (^e)	Display last page.
+        KEY_TOC  (^t)	Display help table of contents.
+\fBhelp\fP
+.fi
+
+.SH MENU INITIALIZATION FILE - (.menuinit)
+A menu initialization file can be provided that
+contains initialization commands
+to menu.  This file is read when menu is first started.  The \fI.menuinit\fP
+file is first looked for in the current directory then in getenv("HOME")
+then in getenv("MENUDIR").  This file is not needed if the default settings 
+suffice.  
+
+Below is listed a .menuinit 
+file with all the various initialization commands and their associated default 
+value.  The decimal value is what is returned from a curses getch() call.  
+\fITry menu  -keys\fP.  Setting a key value to minus one disables the key, 
+although the associated curses key, if any, is still active.
+
+Note: Menu(1) does character matching (case insensitive) on the option
+description,
+in addition to entering the number
+of the option, to select a option.  The character matching is done after it
+has checked for any of the following keys.  So, for example, if you use the
+default setting for KEY_EXITMENU (e) and you have a option titled "Enter ...".
+The user will not be able to press a "e" for character matching on "Enter ...".
+The exit menu process will be enabled.  This should be considered in
+selecting your key values if full character matching is important.
+
+
+.nf
+     LINETYPE = main_line_type shadow_line_type
+                       	# Override default line types (but a
+                       	# .LINETYPE in a menu source script
+                       	# will take precedence). 
+                       	# For values of main_line_type and
+                       	# shadow_line_type see .BOX.
+     KEY_EXITMENU = 101	# (e)   Exit Menu Program.
+     KEY_MAINMENU = 109	# (m)   Go to main menu.
+     KEY_PREVMENU = 112	# (p)   Go to previous menu.
+     HOTKEYS			#       This causes the above menu keys
+                       	#       to work without a carraige return.
+
+     KEY_GNAME = 103	# (g)   Go to a specific menu prompt.
+     KEY_POPGNAME = 7	# (^g)  Display "\fIGoto Menu\fP", GNAME pop menu.
+     KEY_RETURN = 13	# (^m)  Select hi-lighted menu option or traverse
+                       	#       forwards through GETINPUT fields.
+     KEY_DOWN = 10     	# (^j)  Traverse forwards through menu options or
+                       	#       GETINPUT fields.
+     KEY_UP = 11		# (^k)  Traverse backwards through menu options or
+                       	#       GETINPUT fields.
+     KEY_TAB = 9       	# (^i)  Fast forward through menu options or
+                       	#       GETINPUT fields.
+     KEY_BTAB = -1     	#       Fast reverse through menu options or
+                       	#       GETINPUT fields.
+     KEY_BEG = 2       	# (^b)  Place cursor at beginning of a GETINPUT field.
+			           	#       Display first page of help screen.
+     KEY_END = 5	# (^e)  Place cursor at end of input in a GETINPUT field.
+			           Display last page of help screen.
+     KEY_RIGHT = 12	# (^l)  Forward space within the GETINPUT field.
+     KEY_LEFT = 8	# (^h)  Backspace within the GETINPUT field (non-destructive).
+     KEY_BACKSPACE = 8    # (^h)  Same as KEY_LEFT.
+     KEY_EOL = 4	# (^d)  Delete from cursor to end of GETINPUT field.
+     KEY_DL = 3		# (^c)  Clear GETINPUT field and home cursor.
+     KEY_DC = 24	# (^x)  Delete a character in a GETINPUT field.
+     KEY_IC = 20		# (^t)  Toggle between type-over and insert mode in GETINPUT.
+     KEY_HELP = 63	# (?)  Display help screen.
+     KEY_TOC = 20	# (^t)  When in help display table of contents for help.
+     KEY_REFRESH = 18	# (^r)  Redraw the screen.
+     KEY_ACCEPT = 1	# (^a)  Accept all input from a GETINPUT screen.
+     KEY_CANCEL = 27	# (esc)  Cancel all input from a GETINPUT screen or cancel a pop-up menu selection.
+			           Exit a help screen.
+     KEY_SAVE = 6	# (^f)  Save a GETINPUT screen to a file.
+     KEY_PRINT = 16	# (^p)  Print a GETINPUT screen to lp.
+.fi
+
+.SH EXAMPLE menufile
+.nf
+\fB###\fR     This is a example of a menu script file.
+
+\fB .AUTHORIZE\fR  pjc nortons boink mozart
+
+\fB###\fR	Initialize function keys for TERM=5425
+\fB .UNIX\fR  echo "\\033[1;2;0;0q  HELP          h\\r\\c"
+
+\fB###\fR	Define goto menu names.
+\fB .GNAME\fR  main  main.m
+\fB .GNAME\fR  reports  reports.m
+
+\fB###\fR     Title Lines Section.
+\fB .TITLE\fR
+  Version 3.00...\\RPACIFIC * BELL\\N...$DATE
+\fB .TITLE\fR
+ $MAIL...Sample Menu...\\S$TIME\\N
+\fB .TITLE\fR
+ ...MAIN MENU...
+\fB .LINE\fR
+
+\fB###\fR     Left column of screen - Options
+\fB .WINDOW\fR 0 23 0 39
+\fB .SYSTEM\fR who
+List who is on the system.
+\fB .SYSTEM\fR ps -ef; \\
+	echo "Press [ Return ] to continue.\\c"; read reply
+Print process status table.
+
+\fB###\fR     Right column of screen - Options
+\fB .WINDOW\fR 0 23 40 79 \\R SUB MENU \\N
+\fB .MENU\fR reports.m
+Go to report menu.
+
+\fB .TEXT\fP 22 50
+Selection [ ? for help ]
+.fi
+
+.SH GENERALLY ACCEPTED GUIDELINES
+.PD 0.1
+.IP -> 3
+Put a meaningful title on the top of every menu.
+.IP -> 3
+Provide symmetric balance by centering the title and the menu options
+around the center axis of the screen.
+.IP -> 3
+Choose an organizing principle for the menu options.
+Organize menu hierarchies according to the tasks users will perform, rather
+than the structure of the software modules.
+.br
+Hints in organizing options:
+.RS 6
+.IP * 3
+Chronological ordering
+.IP * 3
+Ascending or descending numerical ordering
+.IP * 3
+Items grouped by physical properties, (Increasing volume, weight or temperature)
+.IP * 3
+Alphabetic sequence of terms
+.IP * 3
+Grouping of related options with spatial demarcation between groups
+.IP * 3
+Most frequently used options first
+.IP * 3
+Most important options first
+.RE
+.IP -> 3
+To facilitate scanning, put blank lines between logical groupings of menu
+options and after about every fifth option in a long list.
+.IP -> 3
+Limit the number of menu choices of one screen.
+The breadth (number of options per menu) should be no more than eight and the
+depth (number of levels of menus) should be no more than four.
+.IP -> 3
+Use words for your menu options that clearly and specifically describe 
+what the user is selecting; use simple, active verbs to describe menu options.
+Use common, short English words that clearly describe the action that the 
+command will carry out; choose words that are distinctive from one another.
+.IP -> 3
+Display the menu options in mixed, upper and lower case letters.
+.IP -> 3
+Be sure that any function keys that you use will operate correctly on all of
+the different types of keyboards the users have.
+.IP -> 3
+Be consistent in the use of menu formats, procedures, and wording; the 
+mapping of keys to functions; the naming of menu options.
+.IP -> 3
+Options should suggest or entail closure.  If a menu option calls another
+menu (.MENU) the title of the option should be the title of the called menu
+to provide continuity.  Likewise, if a menu option calls a program (reports,
+screens) the title of the option should be the title of the report/screen.
+.IP -> 3
+Display only information that the user needs to know.
+.IP -> 3
+Every menu should indicate how to exit from the screen.
+.IP -> 3
+Avoid hyphenation of words between lines.
+.IP -> 3
+Use abbreviation and acronyms only when they are significantly shorter than
+the full text and when they will be understood by the user.
+.IP -> 3
+Options in a multiple column list should be organized in vertical columns
+which are read from left to right on the screen.
+.IP -> 3
+Put a least two spaces between the longest item in a column and the beginning
+of the next column.
+.IP -> 3
+Use highlighting to emphasize important information only.  Do not overuse
+it.
+.IP -> 3
+A \fI.POPMENU\fP, if possible, should appear as close to and to the right 
+of the option that selected it.  Probably a \fI.GETINPUT\fP screen should also.
+.PD

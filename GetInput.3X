@@ -1,0 +1,684 @@
+. \ %W% DeltaDate %G% ExtrDate %H% 
+.TH GETINPUT 3X "libgeti"
+.SH NAME
+GetInput \- manages terminal input using curses
+.SH SYNOPSIS
+.LP
+.nf
+#include <curses.h>
+#include "GetInput.h"
+
+int GetInput (win, row, col, &Fld, FldAttribute, FldMask,
+              FldRange, FldLength, FldMin, FldCharType, 
+              FldAdjust, FldType, FldExit, MustEnter, 
+              ErrRow, MsgRow, PromptMsg, HelpFile, HelpTag)
+
+WINDOW        *win;
+int           row, col, FldAttrbute, FldLength, FldMin, 
+              FldExit, MustEnter, ErrRow, MsgRow;
+FldUnPointer  Fld;
+char          *FldMask, *FldRange, FldCharType, FldAdjust, 
+              FldType, *PromptMsg, HelpFile[], HelpTag[];
+.fi
+.SH DESCRIPTION
+Gets terminal input using curses(3X). 
+GetInput uses a field by field approach.  All
+edits and processing are performed for that field as the user
+moves from field to field.  It is not a fill form methodology where
+all edits and processing are performed after the user has inputed
+a number of fields in a form.
+
+.SH GETTING STARTED
+You need to include GetInput.h in your program.
+
+Curses tty modes should be - cbreak(), noecho(), nonl() and
+keypad () if you want to use arrow keys and the like.
+
+You should trap and ignore SIGALRM (see BUGS).
+
+.SS Defining Keyboard Keys
+GetInput uses a number of keyboard keys to tell it what to do.
+A default value to the various keys is automatically assigned when you use
+this library.  Those default values may be changed by declaring the variable
+as extern in your program and assigning a new value.
+In addition to the default variable values, if the terminal
+has an associated curses key defined (see curses.h) that key may also be used.
+For example, ^b (KeyBeg) is the default value to place cursor at beginning 
+of a field but if there is a key defined for KEY_BEG, in curses, then that
+key may also be used.  If the value of KeyBeg and KEY_BEG are different, 
+GetInput will return the value of KEY_BEG not KeyBeg regardless of which 
+one is pressed.
+Not all keys may have an associated curses key.
+The "^" indicates press and hold the control key.  A negative one disables
+the key, although the associated curses key is still active.
+.br
+Below is listed the InitGetI() function with the default value and the
+associated curses key.
+.nf
+
+/*
+**  InitGetI()
+**	All this does is define some global variables for the keys
+**	used in GetInput(3) and assign some default values.
+*/
+
+#include	<curses.h>
+#include	"GetInput.h"
+
+				/* ACCEPT INPUT KEYS */
+				/* These are the only keys that will return the data inputted into your variable. */
+int	KeyReturn = '\\r';		/* ^m  KEY_RETURN */
+int	KeyDown = 10;		/* ^j  KEY_DOWN */
+int	KeyUp = 11;		/* ^k  KEY_UP */
+int	KeyTab = '\\t';		/* ^i  KEY_TAB */
+int	KeyBTab = -1;		/*     KEY_BTAB */
+int	KeyAccept = 1;		/* ^a  KEY_ACCEPT - Typically this is the key the user presses
+				             to signify he/she is finished with this screen. */
+
+				/* FIELD EDITING KEYS */
+int	KeyBeg = 2;		/* ^b  KEY_BEG - Place cursor at beginning of field */
+int	KeyEnd = 5;		/* ^e  KEY_END - Place cursor at end of input in field */
+int  	KeyRight = 12;		/* ^l  KEY_RIGHT - Forward space in field */
+int  	KeyLeft = 8;		/* ^h  KEY_LEFT - Backspace in field (non-destructive) */
+int  	KeyBackspace = '\\b';	/* \\b  KEY_BACKSPACE - Same as KEY_LEFT */
+int  	KeyEOL = 4;		/* ^d  KEY_EOL - Delete from cursor to end of field */
+int  	KeyDL = 3;		/* ^c  KEY_DL - Clear field and home cursor */
+int  	KeyDC = 24;		/* ^x  KEY_DC - Delete a character */
+int  	KeyIC = 20;		/* ^t  KEY_IC - Toggle between type-over and insert mode */
+
+				/* OTHER KEYS */
+int  	KeyRedraw = 18;		/* ^r  KEY_REFRESH - Redraw screen */
+int  	KeySave = 6;		/* ^f  KEY_SAVE - Save screen to a file */
+int  	KeyPrint = 16;		/* ^p  KEY_PRINT - Print screen to lp */
+int  	KeyCancel = 27;		/* esc KEY_CANCEL - Cancel pop-up menu selection */
+int  	KeyHelp = '?';		/*     KEY_HELP - Display help screen */
+				/*        If the user needs to input a "?" you will have to change this. */
+int  	KeyTOC = 20;		/* ^t  KEY_TOC  - When in help display Table of Contents */
+
+void
+InitGetI()
+{
+	/* i don't do nuthin */
+}
+.fi
+
+.SH ARGUMENT DESCRIPTION
+.TP 6
+*win
+A pointer to a curses window that this routine will operate under.
+.TP 
+row
+The row to position cursor on.
+.TP 
+col
+The starting column for field.
+.TP
+&Fld		
+A pointer to a union variable where you have loaded the
+address of your memory variable to accept the input data.  Upon
+entry to GetInput the value in your memory variable will be
+displayed as the default value.  The type of union you select must be compatible
+with the \fIFldType\fP you've specified.
+
+.nf
+For example:
+	union FldUnion	Fld;
+	double		myvar;
+
+	Fld.doubleVal = &myvar;
+	GetInput (......);
+
+	/*
+	**  After returning from GetInput() what the user typed in will
+	**  be in \fImyvar\fP;
+	*/
+
+
+
+/*
+**     Structure of Union
+*/
+typedef union FldUnion
+{
+	long    *longVal;
+	double  *doubleVal;
+	float   *floatVal;
+	int     *intVal;
+	short   *shortVal;
+	char    *strVal;
+} *FldUnPointer;
+.fi
+.TP
+FldAttrbute	
+Curses attribute you want your input field to be.  For
+example A_REVERSE.  Refer to curses(3X) for further
+information on allowable terminal attributes.
+.br
+A_SAME  is a special attribute that tells GetInput to use
+the same attributes that is already on the screen in the
+first column of the field.
+
+. \ **********************************
+.TP
+FldMask
+A char pointer to a mask for the field.  This permits the user to mix 
+alpha with numeric while letting GetInput do the edit checking.  You can also
+use this to format a field.
+
+The keyword \fBNOMASK\fP may be placed here if no mask is required.
+
+Valid masks for a field depend upon the type of field
+you specify, see \fIFldCharType\fP.
+
+The \fIFldLength\fP should not include character positions where no input
+is allowed in the mask (format characters), because format characters
+are not returned into \fIFld\fP.  For example, \fIFldCharType = DATE,
+FldMask = "MM/DD/YY"\fP.  The "/" is a format character.  The cursor
+will skip over those positions in the field.  Only the characters typed in
+the MM DD YY positions will be in your memory variable \fIFld\fP.
+The FldLength would be six for this case.
+
+Because the mask is so closely tied to the \fIFldCharType\fP, a complete
+description of what mask characters are valid with what field types is 
+described under
+\fIFldCharType\fP.  Any character in the mask that is not listed as a valid
+mask character for that field type becomes a format character.
+. \ **********************************
+.TP
+FldRange
+A char pointer to a set of valid ranges permitted for this field. 
+Ranges may be specified as comma separated values ("ONE,TWO,THREE") 
+or as a range ("1-5"), or a combination of both ("1-5,M,E").
+Range values must be compatible with the \fIFldCharType\fP and \fIFldType\fP 
+that you 
+have selected.
+.br
+Some examples:
+.nf
+	"1-10"
+	"5,10,15,16"
+	"1-10,20,M,E,32-40"
+	"CA,TX,ID"
+.fi
+
+The keyword \fBNORANGE\fP may be used if no range checking is to be 
+performed for this field.
+. \ **********************************
+.TP
+FldLength
+Maximum length of this field.  For field types (FldCharTypes) SET and MENU 
+the field length is automatically set to the longest set value in the FldRange.
+. \ **********************************
+.TP
+FldMin
+If \fIMUSTENTER\fP is selected in \fIFldExit\fP then this is the minimum
+required input.  Otherwise, it is the minimum required input only if they try 
+to input something.
+. \ **********************************
+.TP
+FldCharType
+This argument defines edit checks to be performed on the
+input characters as they are being typed in.  If no mask is provided then
+the field type itself determines the edit checks to be performed on all
+characters in the field.
+.RS 6
+.TP 11
+ALPHANUM
+Any alpha/numeric character is allowed.
+.br
+Valid mask characters:
+.nf
+	space	alpha/numeric
+	A	alpha
+	9	numeric
+	U	upper alpha
+	V	upper alpha/numeric
+	H	???
+.fi
+.TP
+ALPHA
+Alpha only.
+.br
+Valid mask characters:
+.nf
+	A	alpha
+.fi
+.TP
+NUMERIC
+Numeric only.
+.br
+Valid mask characters:
+.nf
+	9	numeric
+.fi
+.TP
+UPPER
+Convert to upper case.  Only alpha permitted.
+.br
+Valid mask characters:
+.nf
+	U	upper alpha
+.fi
+.TP
+UPPER_AN
+Alpha and numeric permitted.  Convert alpha characters to upper-case.
+.br
+Valid mask characters:
+.nf
+	V	upper alpha/numeric
+.fi
+.TP
+HEX
+Only hex characters permitted.
+.br
+Valid mask characters:
+.nf
+	H	???
+	space	???
+.fi
+.TP
+STATE
+Valid two character Post Office abbreviations for the fifty states.
+A edit check is done for a valid state.
+.br
+Valid mask characters:
+.nf
+	SS	two character state
+	S	???
+	space	???
+.fi
+.TP
+ZIP
+Post Office zip code.
+.br
+Valid mask characters:
+.nf
+	99999-9999	???
+.fi
+.TP
+DATE
+A valid date.
+.br
+Valid mask characters:
+.nf
+	MM	month  (01-12)
+	DD	day  (01-31)
+	YY	year  (00-99)
+	YYYY	full year with century
+.fi
+The mask must contain at least MM and DD.  If no mask is specified for the
+field a default mask of "MMDDYY" is used.
+.br
+Some examples:
+.nf
+	MMDDYY
+	MM/DD/YY
+	YY-MM-DD
+	MM  DD  YYYY
+.fi
+.TP
+TIME
+A time field.
+.br
+Valid mask characters:
+.nf
+	HH	hours  (01-12)
+	MM	minutes  (00-59)
+	SS	seconds  (00-59)
+	TT	tenths  (00-99)
+	II	military hours  (00-24)
+.fi
+Some examples:
+.nf
+	HH:MM
+	HH:MM:SS
+	HH:MM:SS:TT
+	II:MM
+	II:MM:SS
+	II:MM:SS:TT
+.fi
+.TP
+SET
+This field type specifies a set of values that are acceptable in the input 
+field.
+The acceptable values within the set are specified in the \fIFldRange\fP 
+argument.  
+The user selects one of the set values specified in the field range by
+pressing the space bar, which will toggle through the set values,
+or by pressing the first character in the desired value.
+
+The format of the FldRange can only be comma separated values 
+(ex. "CA,ID,TX").  
+Range values, such as "1-5", don't work.  You would have to say "1,2,3,4,5".
+.br
+The FldLength is automatically set to the longest set value in the FldRange.
+.TP
+MENU
+This field type is similar to the SET type.  The difference is when the user
+attempts to type something in the field a pop-up menu of available choices
+are displyed, as specified in field_range.  
+The user makes a selection by hi-lighting the choice and pressing return.
+.br
+See SET type for specifying the FldRange.
+The limit is ten items in the FldRange.
+.TP
+PROTECT
+This X's out the field so what is typed on the keyboard can not be seen on
+the screen.  Useful for password entry.
+.RE
+. \ ---------------------------------
+.TP
+FldAdjust
+Indicates whether to adjust the text right or left within the field
+and whether or not to zero or blank fill the field.
+.RS 6
+.TP 15
+NOFILL
+no action.
+.TP
+RTADJ_ZFILL
+right adjust, zero fill
+.TP
+RTADJ_BFILL
+right adjust, blank fill
+.TP
+LFADJ_ZFILL
+left adjust, zero fill
+.TP
+LFADJ_BFILL
+left adjust, blank fill
+.RE
+. \ ---------------------------------
+.TP 6
+FldType
+This argument describes the memory variable that is to hold
+the input data.  The address that you loaded into "&Fld".
+.RS 6
+.TP 10
+CHAR
+character field
+.TP
+INT
+integer
+.TP
+SHORT
+short integer
+.TP
+LONG
+long integer
+.TP
+DOUBLE
+double
+.TP
+FLOAT
+floating point
+.TP
+MONEY
+double which accepts only two decimal positions.
+.RE
+. \ ---------------------------------
+.TP 11
+FldExit
+.RS 6
+.TP 10
+AUTONEXT
+GetInput() will exit, with the value of KEY_RETURN, when the last character 
+in the field is keyed in.
+.TP
+NOAUTO
+Will not exit field until a accept key (see defining keyboard keys) is pressed.
+.RE
+. \ ---------------------------------
+.TP
+MustEnter
+.RS 6
+.TP 12
+MUSTENTER
+This is a must enter field and the value of FldMin must be
+entered before exiting field.
+.TP
+NOMUST
+Not a must enter field.
+.RE
+. \ ---------------------------------
+.RE
+.TP 6
+ErrRow
+Indicates what row/column to display an error message if one occurs.
+The row specified is for stdscr.
+If a optional column is to be specified on where to start the message, the
+format would be for example 2302 where 23 is the row and 02 is the column.
+Otherwise, a default of column zero is used.
+GetInput will do a clrtoeol() before displaying the error message, therefore,
+the entire row must be given over to GetInput.
+If this row is outside the boundary of the window unpredictable results will
+occur, for example, winch() will return garbage.
+.TP
+MsgRow
+Indicates what row to display help messages.
+The row specified is for stdscr.
+If a optional column is to be specified on where to start the message, the
+format would be for example 2202 where 22 is the row and 02 is the column.
+Otherwise, a default of column zero is used.
+GetInput will do a clrtoeol() before displaying the message, therefore,
+the entire row must be given over to GetInput.
+If this row is outside the boundary of the window unpredictable results will
+occur, for example, winch() will return garbage.
+.RS 6
+.TP 10
+NULL
+No active message line.  Only if PromptMsg == NOMSG.
+.RE
+.TP
+*PromptMsg
+Prompt message to be displayed.  The prompt message is always displayed
+to stdscr, regardless of the win specified.
+.RS 6
+.TP 10
+NOMSG
+No message to be displayed.
+.RE
+.TP
+HelpFile
+File name containing on-line help messages.  Current directory
+is searched first for helpfile and then getenv("HELPDIR") directory is
+searched.
+.RS 6
+.TP 10
+NOHELP
+No help file is available for this field.
+
+.PP
+The default helpfile (GetInput.hlp) is shown below.  Where this file is
+installed will vary from machine to machine.
+
+.nf
+\fBGETINPUT\fP
+ .TITLE GETINPUT Help
+Mover Keys:
+        KEY_RETURN  (^m)    Traverse forwards through the fields.
+        KEY_DOWN  (^j)      Traverse forwards through the fields.
+        KEY_UP  (^k)        Traverse backwards through the fields.
+        KEY_TAB  (^i)       Fast forward through the fields.
+        KEY_BTAB            Fast reverse through the fields.
+Field Editing Keys:
+        KEY_BEG  (^b)       Place cursor at beginning of field.
+        KEY_END  (^e)       Place cursor at end of input in field.
+        KEY_RIGHT  (^l)     Forward space within the field.
+        KEY_LEFT  (^h)      Backspace within the field (non-destructive).
+        KEY_BACKSPACE  (^h) Same as KEY_LEFT.
+        KEY_EOL  (^d)       Delete from cursor to end of field.
+        KEY_DL  (^c)        Clear field and home cursor.
+        KEY_DC  (^x)        Delete a character.
+        KEY_IC  (^t)        Toggle between type-over and insert mode.
+Other Keys:
+        KEY_HELP  (?)       Display help screen.
+        KEY_REFRESH  (^r)   Redraw the screen.
+        KEY_ACCEPT  (^a)    Accept all input and exit screen.
+        KEY_CANCEL  (esc)   Cancel all input and exit screen.
+        KEY_SAVE  (^f)      Save screen to a file.
+        KEY_PRINT  (^p)     Print screen to lp.
+\fBGETINPUT\fP
+
+
+
+\fBpopmenu\fP
+.TITLE Pop-Up Menu Help
+SELECTING OPTIONS:
+    To select an option press the "up arrow key",
+    "k", "down arrow key", "j" to place bar on
+    option and press "return".
+
+    KEY_CANCEL (esc)   - Cancel selection.
+\fBpopmenu\fP
+
+
+
+\fBhelp\fP
+.TITLE Using Help
+Help displays consist of a description displayed in a window.
+If the description doesn't fit in the window, the Up Arrow and
+Down Arrow keys can be used to view a few more lines of the 
+display.  Exiting the help system will return the display to 
+the state it was in when you asked for help.
+
+   The following keys are active in help:
+        KEY_CANCEL  (esc)   Exit help.
+        KEY_DOWN  (^j)      View a few more lines.
+        KEY_UP  (^k)        View the previous lines.
+        KEY_BEG  (^b)       Display first page.
+        KEY_END  (^e)       Display last page.
+        KEY_TOC  (^t)       Display table of contents.
+\fBhelp\fP
+.fi
+.RE
+.TP
+HelpTag
+Tag in help file where messages are to be found.  The tag 
+surrounds the help message.  For example:
+.nf
+
+helptag
+[ .TITLE  Title line goes here. ]
+I put any help message for the user between the tags.  
+It can be any length as it will be displayed one screen 
+at a time.
+The following screen attributes may be used:
+\\S  =  Standout
+\\B  =  Bold
+\\U  =  Underline
+\\D  =  Dim
+\\R  =  Reverse video
+\\L  =  Blink
+\\N  =  Normal (reset)
+
+\\BThis text is in bold face.  \\NBack in normal mode.
+helptag
+
+The \fITABLE_OF_CONTENTS\fP tagname is a special tag describing what
+is to be contained in the table of contents menu.  The following is the
+syntax for this tagname.
+TABLE_OF_CONTENTS
+helpfile   tagname   description
+TABLE_OF_CONTENTS
+.fi
+.RS 6
+.TP 10
+NOTAG
+No tag.  Should only be used if (HelpFile == NOHELP).
+.RE
+.SH EXAMPLE
+.nf
+#include <curses.h>
+#include "GetInput.h"
+
+main ()
+{
+	union FldUnion Fld;
+	char	name[20], tempstring[50];
+	int	exitcode;
+
+   initscr ();
+   cbreak ();
+   noecho ();
+   nonl ();
+   keypad (stdscr, TRUE);
+
+   name[0] = '\\0';
+   Fld.strVal = name;
+   exitcode = GetInput (stdscr, 2, 0, &Fld, A_REVERSE, NOMASK, 
+                  NORANGE, 20, 0, UPPER_AN, NOFILL, CHAR, 
+                  NOAUTO, MUSTENTER, 21, 20, 
+                  "Please enter your name.", NOHELP, NOTAG);
+
+   Fld.strVal = tempstring;
+   exitcode = GetInput (stdscr, 4, 0, &Fld, A_BOLD, "HH:MM:SS:TT",
+                  NORANGE, 6, 6, TIME, NOFILL, CHAR, AUTONEXT, 
+                  NOMUST, 20, 21, "Time Field HH:MM:SS:TT", 
+                  "myhelpfile", "field2");
+
+   Fld.strVal = tempstring;
+   exitcode = GetInput (stdscr, 8, 0, &Fld, A_NORMAL, 
+                  "(999) 999-9999", NORANGE, 10, 5, NUMERIC, 
+                  RTADJ_ZFILL, CHAR, NOAUTO, MUSTENTER, 20, NULL, 
+                  NOMSG, NOHELP, NOTAG);
+
+   Fld.strVal = tempstring;
+   exitcode = GetInput (stdscr, 9, 1, &Fld, A_REVERSE, NOMASK,
+                  "CA, NV, ID", 2, 2, SET, NOFILL, CHAR, NOAUTO,
+                  NOMUST, 20, 20, "Select your state.", NOHELP, 
+                  NOTAG);
+   endwin ();
+}
+.fi
+.SH AUTHOR
+Irving Griesman  (original author)
+.br
+Enhanced & Maintained by Paul J. Condie
+.br
+{ihnp4,lll-crg,qantel,pyramid}!ptsfa!pbody!pcbox!pjc
+
+.SH FILES
+GetInput.hlp	- default GetInput help file.
+
+.SH DIAGNOSTICS
+GetInput returns the the decimal value of the key pressed from the getch()
+function.  If the key pressed has an associated curses key GetInput returns
+the value of the curses key.  See Defining keyboard keys.
+
+.SH SEE ALSO
+curses(3X), popmenu(3).
+
+.SH WARNING
+Putting a field on the same row as your message row or error row may cause
+unpredictable results.  This is not recommended.
+
+.SH BUGS
+There is a bug in curses when you call getch() which this routine does.
+When in keypad() mode and an ESC character is read, curses 
+does a timed read (1 second) waiting for other characters to appear.  if
+some other characters are received within the one second time interval,
+curses attempts to match the received string with a caps string defined for the terminal (i.e. ESC[A, ESC[B are arrow keys for a vt100 type terminal)
+and then returns a #defined int value which can be tested for easily.
+In some cases untrapped alarm calls occur.  The solution is to trap (ignore)
+alarm calls.
+.PP
+On a mustenter field with a fldmin specified a control key (i.e. KEY_DOWN, etc.)
+will exit the
+field if that is the first key the user presses.  Once the user has tried
+to input a value in the field even if he clears the field the control key
+will not exit until fldmin is inputed.
+
+.nf
+The following example does not turn the reverse video off when you leave the field on the sun.
+rc = GetInput (stdscr, 0, 1, &Fld, A_REVERSE, "VVVVVV.VVVVV.VV.VV.V", 
+	NORANGE, 16, 6, UPPER_AN, NOFILL, CHAR, NOAUTO, MUSTENTER, 
+	ERRROW, MSGROW, "Please enter niu location.", "cfgsrn.hlp", NOTAG);
+.fi
+
+.PP
+A core dump of (DisPrmpt at line 37) indicates the string was not null terminated.
+
+..PP
+If a range is given on a field and a invalid range is inputed and then you
+clear the field you are unable to exit field.
