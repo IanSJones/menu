@@ -17,7 +17,7 @@ extern int		yydebug;
 extern int		debug;
 struct ScreenInfo	*yyscreen;
 int			fieldcount;
-char			eott[256];		/* error on this token */
+char			eott[80];		/* error on this token */
 /* char			*malloc(); */
 extern char		yytext[];
 %}
@@ -62,7 +62,8 @@ valid_field	: screen_pos
 			strcpy (eott, "window_pos");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_pos");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_pos");
 				fflush (stderr);
 			}
 		}
@@ -72,7 +73,8 @@ valid_field	: screen_pos
 			strcpy (eott, "window_rows");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_rows");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_rows");
 				fflush (stderr);
 			}
 		}
@@ -82,7 +84,8 @@ valid_field	: screen_pos
 			strcpy (eott, "window_cols");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_cols");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_cols");
 				fflush (stderr);
 			}
 		}
@@ -92,7 +95,8 @@ valid_field	: screen_pos
 			strcpy (eott, "window_border");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_border");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_border");
 				fflush (stderr);
 			}
 		}
@@ -102,7 +106,8 @@ valid_field	: screen_pos
 			strcpy (eott, "window_title");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_title");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> window_title");
 				fflush (stderr);
 			}
 		}
@@ -112,7 +117,8 @@ valid_field	: screen_pos
 			strcpy (eott, "helpfile");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> helpfile");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> helpfile");
 				fflush (stderr);
 			}
 		}
@@ -122,7 +128,8 @@ valid_field	: screen_pos
 			strcpy (eott, "exit_last_field");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> exit_last_field");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> exit_last_field");
 				fflush (stderr);
 			}
 		}
@@ -133,7 +140,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_name");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_name");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_name");
 				fflush (stderr);
 			}
 		}
@@ -143,7 +151,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_label");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_label");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_label");
 				fflush (stderr);
 			}
 		}
@@ -153,7 +162,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_row");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_row");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_row");
 				fflush (stderr);
 			}
 		}
@@ -163,7 +173,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_col");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_col");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_col");
 				fflush (stderr);
 			}
 		}
@@ -173,7 +184,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_mask");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_mask");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_mask");
 				fflush (stderr);
 			}
 		}
@@ -183,7 +195,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_range");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_range");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_range");
 				fflush (stderr);
 			}
 		}
@@ -193,7 +206,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_length");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_length");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_length");
 				fflush (stderr);
 			}
 		}
@@ -203,7 +217,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_include_mask");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_include_mask");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_include_mask");
 				fflush (stderr);
 			}
 		}
@@ -213,7 +228,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_min");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_min");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_min");
 				fflush (stderr);
 			}
 		}
@@ -223,7 +239,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_edits");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_edits");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_edits");
 				fflush (stderr);
 			}
 		}
@@ -233,7 +250,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_adjust");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_adjust");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_adjust");
 				fflush (stderr);
 			}
 		}
@@ -243,7 +261,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_mustenter");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_mustenter");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_mustenter");
 				fflush (stderr);
 			}
 		}
@@ -253,7 +272,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_prompt");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_prompt");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_prompt");
 				fflush (stderr);
 			}
 		}
@@ -263,7 +283,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_terminator");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_terminator");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_terminator");
 				fflush (stderr);
 			}
 		}
@@ -273,7 +294,8 @@ valid_field	: screen_pos
 			strcpy (eott, "field_defaults");
 			if (debug)
 			{
-				fprintf (stderr, "\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_defaults");
+				fprintf (stderr, 
+				"\nParseDeSrn.y:\t<.DEFINE_SCREEN> field_defaults");
 				fflush (stderr);
 			}
 		}
@@ -642,13 +664,13 @@ field_mustenter	: FIELD_MUSTENTER
 field_prompt	: FIELD_PROMPT EQUAL STRING
 		{
 			strcpy (FLD->prompt, $3);
-			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tfield_prompt string: About to free bytes from \"%s\" (%p)", $3, $3);
+			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tAbout to free bytes from \"%s\" (%p)", $3, $3);
 			free($3);
 		}
 		| FIELD_PROMPT EQUAL QUOTE_STRING
 		{
 			strcpy (FLD->prompt, $3);
-			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tfield_prompt quoted string: About to free bytes from \"%s\" (%p)", $3, $3);
+			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tAbout to free bytes from \"%s\" (%p)", $3, $3);
 			free($3);
 		}
 		;
@@ -666,7 +688,7 @@ field_terminator : FIELD_TERMINATOR EQUAL QUOTE_STRING
 field_defaults	: FIELD_DEFAULTS EQUAL QUOTE_STRING
 		{
 			yyscreen->fielddefaults = (char *)malloc (strlen($3)+5);
-			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tAllocated %d bytes for field_defaults (%p)", strlen($3)+5, yyscreen->fielddefaults);
+			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tAllocated %d bytes for fielddefaults (%p)", strlen($3)+5, yyscreen->fielddefaults);
 			strcpy (yyscreen->fielddefaults, $3);
 			if (debug>8) fprintf(stderr, "\nParseDeSrn.y:\tAbout to free bytes from \"%s\" (%p)", $3, $3);
 			free($3);

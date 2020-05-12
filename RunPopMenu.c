@@ -95,7 +95,7 @@ RunPopMenu (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
 	/*
 	**  Open and Parse the popmenu
 	*/
-	filename = findfile (2, command, getenv("MENUDIR"), "");
+	filename = findfile (command, getenv("MENUDIR"), "");
       	if ((menufile = fopen (filename, "r")) == NULL)
       	{
         	BEEP;
@@ -224,9 +224,10 @@ RunPopMenu (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
 		strcpy (PopMenu[i], pmenu.option[i]->description);
 	strcpy (PopMenu[i], "");
 	if (debug) fprintf(stderr, "\nRunPopMenu.c:\tcalling popmenu with row=%d, col=%d, title=%s", row, col, poptitle);
-	popmenu (9, NEWMENU, popmid, row, col, poptitle, HELPFILE, LINES-2, sizeof(PopMenu[0]), PopMenu);
+	popmenu (NEWMENU, popmid, row, col, poptitle, HELPFILE,
+			LINES-2, sizeof(PopMenu[0]), PopMenu);
 
-	rc = popmenu (1, popmid);
+	rc = popmenu (popmid);
 
 	/* run option selected */
 	if (rc > 0)
@@ -248,7 +249,7 @@ RunPopMenu (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
 					    strcmp (pmenu.option[rc-1]->keyword, ".GETINPUT") == 0 ||
 					    (strcmp (pmenu.option[rc-1]->keyword, ".SYSTEM") == 0 && 
 					     strcmp (command, "GETINPUT") == 0))
-						popmenu (2, UNHILIGHTBOX, popmid);
+						popmenu (UNHILIGHTBOX, popmid);
 
 		         		rc = (*RunKey[i]) (&pmenu, rc-1,
 						KeyWord, ParseKey, ShowKey, 

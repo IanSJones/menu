@@ -41,27 +41,20 @@ IsFldOk (win, row, colStart, Fld, fldMask, fldRange, fldLength, fldCharType,
    fldWrk = fldStr ;
 
    if (debug) fprintf(stderr, "\nIsFldOk.c:\tHere we are");
-   if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tz:fldStr=%s, col=%d", fldStr, col);
 
    while (col < colEnd) 
    {
 
 	if (fldCharType == DATE && strlen(fldMask) > 0 && include_mask)
 	{
-   		if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tIt's a DATE with mask %s, fldStr=%s, col=%d", fldMask, fldStr, col);
 		*fldWrk++ = mvwinch(win, row, col) & A_CHARTEXT ;
 	}
 	else
 		if (charKeyed [col - colStart] == 'Y')
-		{
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\t1:Found a Y at (%d - %d), row=%d, col=%d, fldStr=%s", col, colStart, row, col, fldStr);
 			*fldWrk++ = mvwinch(win, row, col) & A_CHARTEXT ;
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\t2:Found a Y at (%d - %d), row=%d, col=%d, fldStr=%s", col, colStart, row, col, fldStr);
-		}
 	col++;
    }
 
-   if (debug>3) fprintf(stderr, "\nIsFldOk.c:\ty:fldStr=%s", fldStr);
    *fldWrk = '\0' ;
 
    switch (fldType) 
@@ -94,12 +87,10 @@ IsFldOk (win, row, colStart, Fld, fldMask, fldRange, fldLength, fldCharType,
       *Fld->doubleVal = atof(fldStr) ;
       break ;
    }
-   if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tx:fldStr=%s", fldStr);
 
    if (fldStr == NULL  &&  !mustEnter)
       return(1) ;
 
-  	if (debug>3) fprintf(stderr, "\nIsFldOk.c:\ta:fldStr=%s", fldStr);
 	if (fldCharType == DATE  &&
            ((mustEnter && !IsDate (fldStr, fldMask)) ||
            (!mustEnter && strcmp(fldStr, "000000") != 0  &&
@@ -119,7 +110,6 @@ IsFldOk (win, row, colStart, Fld, fldMask, fldRange, fldLength, fldCharType,
       		return (0) ;
    	}
 
-   	if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tb:fldStr=%s", fldStr);
    	if (fldCharType == TIME  &&
            ((mustEnter && !IsTime (fldStr, fldMask)) ||
            (!mustEnter && strcmp(fldStr, "000000") != 0  &&
@@ -139,7 +129,6 @@ IsFldOk (win, row, colStart, Fld, fldMask, fldRange, fldLength, fldCharType,
       		return (0) ;
    	}
 
-   	if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tc:fldStr=%s", fldStr);
    	if (fldCharType == STATE  &&  !IsState (fldStr)) 
 	{
       		BELL;
@@ -154,33 +143,26 @@ IsFldOk (win, row, colStart, Fld, fldMask, fldRange, fldLength, fldCharType,
       		return (0) ;
    	}
 
-   	if (debug>3) fprintf(stderr, "\nIsFldOk.c:\td:fldStr=%s", fldStr);
    	if (fldCharType == SET   ||
 		fldCharType == MENU  ||
 		fldCharType == FILE_MANAGER  ||
 		fldRange == NULL)
 	{
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\t1: calling ReDispFld: fldStr=%s", fldStr);
       		ReDispFld(win, row, colStart, -1, fldMask, fldRange, fldLength, 
 				fldCharType, fldType, fldStr, colEnd, charKeyed,
 				setNumb, origAttr) ;
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\t1: back from ReDispFld: fldStr=%s", fldStr);
       		return (1) ;
    	}
 
-   	if (debug>3) fprintf(stderr, "\nIsFldOk.c:\te:fldStr=%s", fldStr);
    	if ( IsRange(Fld, fldLength, fldType, fldRange) ) 
 	{
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\t2: calling ReDispFld: fldStr=%s", fldStr);
       		ReDispFld(win, row, colStart, -1, fldMask, fldRange, fldLength, 
 				fldCharType, fldType, fldStr, colEnd, charKeyed,
 				setNumb, origAttr) ;
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\t2: back from ReDispFld: fldStr=%s", fldStr);
       		return (1) ;
    	} 
 	else 
 	{
-   			if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tf:fldStr=%s", fldStr);
       		getyx (win, row, col) ;
       		BELL;
 		CLEARROW (fldErrRow);
@@ -193,7 +175,6 @@ IsFldOk (win, row, colStart, Fld, fldMask, fldRange, fldLength, fldCharType,
       		wmove (win, row, colLast) ;
 
    	}
-   	if (debug>3) fprintf(stderr, "\nIsFldOk.c:\tg:fldStr=%s", fldStr);
 
    	return(0) ;
 

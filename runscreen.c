@@ -1,3 +1,4 @@
+/*:ve se ts=4:*/
 /*  FUNCTION:	runscreen()
 */
 
@@ -104,8 +105,7 @@ runscreen (screen_name, menu, opnumber)
 		SRN->rows = LINES-1;
 		SRN->cols = COLS;
 	}
-	else
-	 	if (SRN->rows == 0  ||  SRN->cols == 0)
+	else  	if (SRN->rows == 0  ||  SRN->cols == 0)
 		{
 			SRN->rows = LINES - toprow;
 			SRN->cols = COLS - leftcol;
@@ -117,7 +117,8 @@ runscreen (screen_name, menu, opnumber)
 	if (strcmp (SRN->helpfile, "") == 0)
 		helpflag = FALSE;
 	else
-		strcpy (helpfile, findfile (4, SRN->helpfile, ".", getenv("HELPDIR"), getenv("MENUDIR"), ""));
+		strcpy (helpfile, findfile (SRN->helpfile, ".",
+			getenv("HELPDIR"), getenv("MENUDIR"), ""));
 
 /* Ian Jones - Clean up old garbage - Currently COMMENTED OUT
 **	for (x=1; x<=(SRN->rows - 2); x++)
@@ -141,7 +142,6 @@ runscreen (screen_name, menu, opnumber)
 	if (strcmp (menu->helpfile, "") != 0)
 		mvwprintw (menu->win, menu->NumItems+2,menu->width+3, "?");
 	*/
-	if (debug>3) fprintf(stderr, "\nrunscreen.c:\twattrset (swin, A_NORMAL);");
 	wattrset (swin, A_NORMAL);
 
 	/*
@@ -151,7 +151,8 @@ runscreen (screen_name, menu, opnumber)
 	{
 		if (debug)
 		{
-			fprintf (stderr, "\nrunscreen.c:\t<%s> field_defaults=\"%s\"", SRN->name, SRN->fielddefaults);
+			fprintf (stderr, "\nrunscreen.c:\t<%s> field_defaults=\"%s\"", 
+				SRN->name, SRN->fielddefaults);
 			fflush (stderr);
 		}
 		move (ErrRow,0);  clrtoeol();
@@ -159,12 +160,8 @@ runscreen (screen_name, menu, opnumber)
 		if ((pp = popen (SRN->fielddefaults, "r")) == (FILE *)NULL)
 		{
 			BEEP;
-			mvprintw (ErrRow-2,0, "Could not open pipe = %s", SRN->fielddefaults);
-			if (debug)
-			{
-				fprintf (stderr, "\nrunscreen.c:\tCould not open pipe = %s", SRN->fielddefaults);
-				fflush (stderr);
-			}
+			mvprintw (ErrRow-2,0, "Could not open pipe = %s",
+				SRN->fielddefaults);
 			shutdown ();
 		}
 
@@ -172,15 +169,20 @@ runscreen (screen_name, menu, opnumber)
 
 		/* read and set each field until no more input */
 		rc = 99;
-		for (fidx = 0; SRN->field[fidx] != (struct FieldInfo *)NULL && fidx <= MAXFIELDS; fidx++)
+		for (fidx = 0; SRN->field[fidx] != (struct FieldInfo *)NULL && 
+			fidx <= MAXFIELDS; fidx++)
 		{
 			strcpy (fieldinput[fidx], "");
 			if (rc == EOF) 
 			{
 				if (debug)
 				{
-					fprintf (stderr, "\nrunscreen.c:\t<%s> read nothing from popen", SRN->name);
-					fprintf (stderr, "\nrunscreen.c:\t<%s> field %d =\"%s\"", SRN->name,fidx, fieldinput[fidx]);
+					fprintf (stderr, 
+			 	     		"\nrunscreen.c:\t<%s> read nothing from popen",
+						SRN->name);
+					fprintf (stderr, 
+	 	     		          "\nrunscreen.c:\t<%s> field %d =\"%s\"",
+				          SRN->name,fidx, fieldinput[fidx]);
 					fflush (stderr);
 				}
 				continue;
@@ -191,7 +193,9 @@ runscreen (screen_name, menu, opnumber)
 			if (rc == EOF) continue;
 			if (debug)
 			{
-				fprintf (stderr, "\nrunscreen.c:\t<%s> read from popen=\"%s\"", SRN->name, fmtdefault);
+				fprintf (stderr, 
+			 	     "\nrunscreen.c:\t<%s> read from popen=\"%s\"",
+					SRN->name, fmtdefault);
 				fflush (stderr);
 			}
 
@@ -201,7 +205,9 @@ runscreen (screen_name, menu, opnumber)
 				strcpy (fieldinput[fidx], "");
 				if (debug)
 				{
-					fprintf (stderr, "\nrunscreen.c:\t<%s> nullifying field %d =\"%s\"", SRN->name,fidx, fieldinput[fidx]);
+					fprintf (stderr, 
+	 	     		          "\nrunscreen.c:\t<%s> field %d =\"%s\"",
+				          SRN->name,fidx, fieldinput[fidx]);
 					fflush (stderr);
 				}
 				continue;
@@ -221,7 +227,10 @@ runscreen (screen_name, menu, opnumber)
 					fieldinput[fidx][strlen(fieldinput[fidx])-1] = '\0';
 					if (debug)
 					{
-						fprintf (stderr, "\nrunscreen.c:\t<%s> field %d =\"%s\"", SRN->name, fidx, fieldinput[fidx]);
+						fprintf (stderr, 
+	 	     		          	    "\nrunscreen.c:\t<%s> field %d =\"%s\"",
+				          	    SRN->name, fidx, 
+						    fieldinput[fidx]);
 						fflush (stderr);
 					}
 					continue;
@@ -230,7 +239,9 @@ runscreen (screen_name, menu, opnumber)
 				{
 					if (debug)
 					{
-						fprintf (stderr, "\nrunscreen.c:\t<%s> read from popen=\"%s\"", SRN->name, fmtdefault);
+						fprintf (stderr, 
+			 	     		"\nrunscreen.c:\t<%s> read from popen=\"%s\"",
+						    SRN->name, fmtdefault);
 						fflush (stderr);
 					}
 					strcat (fieldinput[fidx], " ");
@@ -247,7 +258,9 @@ runscreen (screen_name, menu, opnumber)
 				strcpy (fieldinput[fidx], fmtdefault);
 			if (debug)
 			{
-				fprintf (stderr, "\nrunscreen.c:\t<%s> field %d =\"%s\"", SRN->name, fidx, fieldinput[fidx]);
+				fprintf (stderr, 
+	 	     		        "\nrunscreen.c:\t<%s> field %d =\"%s\"",
+				        SRN->name, fidx, fieldinput[fidx]);
 				fflush (stderr);
 			}
 		} /* end for each field */
@@ -262,7 +275,9 @@ runscreen (screen_name, menu, opnumber)
 	**	put in the field terminators
 	**	get, format and print default value in getenv () or fielddefaults
 	*/
-	for (fidx = 0; SRN->field[fidx] != (struct FieldInfo *)NULL && fidx <= MAXFIELDS; fidx++)
+	for (fidx = 0; SRN->field[fidx] != (struct FieldInfo *)NULL && 
+		fidx <= MAXFIELDS;
+		fidx++)
 	{
 		/* print label */
 		if (strlen(FLD->label) > 0)
@@ -270,36 +285,31 @@ runscreen (screen_name, menu, opnumber)
 				FLD->col - strlen(FLD->label) - 2,
 				"%s", FLD->label);
 
-
 		/* for SET and MENU types get field_length */
-		if (FLD->type == SET  || FLD->type == MENU || FLD->type == FILE_MANAGER)
-		{
+		if (FLD->type == SET  ||
+		    FLD->type == MENU ||
+		    FLD->type == FILE_MANAGER)
 			FLD->length = GetSetLen (FLD->range);
-			if (debug) fprintf(stderr, "\nrunscreen.c:\tSET, MENU or FILE_MANAGER: FLD->length=%d", FLD->length);
-		}
 
 		/* print field terminators */
 		if (strlen(FLD->terminator) > 0)
 		{
-			if (debug) fprintf(stderr, "\nrunscreen.c:\tstrlen(FLD->terminator) > 0");
 			/* left */
 			mvwprintw (swin, FLD->row, FLD->col - 1,
 				"%c", FLD->terminator[0]);
 			/* right */
 			if (strlen(FLD->mask) > 0)
-			{
-				if (debug) fprintf(stderr, "\nrunscreen.c:\t1: FLD->mask not NULL");
+				{
 				mvwprintw (swin, FLD->row, 
 					FLD->col + strlen(FLD->mask),
 					"%c", FLD->terminator[1]);
-			}
+				}
 			else
-			{
-				if (debug) fprintf(stderr, "\nrunscreen.c:\t1: FLD->mask is NULL");
+				{
 				mvwprintw (swin, FLD->row, 
 					FLD->col + FLD->length,
 					"%c", FLD->terminator[1]);
-			}
+				}
 		}
 
 		/*
@@ -314,7 +324,6 @@ runscreen (screen_name, menu, opnumber)
 			if (getenv(FLD->name) != (char *)NULL)
 			{
 				strcpy (fieldinput[fidx], getenv (FLD->name));
-				if (debug) fprintf(stderr, "\nrunscreen.c:\tFLD->name(%s)  getenv=%s", FLD->name, fieldinput[fidx]);
 /*
    If we have a value set from a previous invocation of this field
    and the mask characters have been included in the variable (include_mask)
@@ -322,14 +331,14 @@ runscreen (screen_name, menu, opnumber)
    filling in the form.
    Ian Jones
 */
-				if (strlen(FLD->mask) >0 && FLD->type == DATE && FLD->include_mask)
+				if (strlen(FLD->mask) >0
+					&& FLD->type == DATE
+					&& FLD->include_mask)
 				{
-					if (debug) fprintf(stderr, "\nrunscreen.c:\t2: FLD->mask not NULL and type=DATE and include_mask set");
 					mask = FLD->mask;
 					x=0;
 					while (*mask != '\0')
 					{
-						if (debug) fprintf(stderr, "\nrunscreen.c:\twhile (*mask != '\0')");
 						while (*mask != 'M'
 							&& *mask != 'D'
 							&& *mask != 'Y')
@@ -338,42 +347,22 @@ runscreen (screen_name, menu, opnumber)
 						mask++;
 					}
 					fieldinput[fidx][x]='\0';
-					if (debug>8) fprintf(stderr, "\nrunscreen.c:\tDATE fieldinput[%d]=%s", fidx, fieldinput[fidx]);
+					if (debug>8) fprintf(stderr, "\nrunscreen.c:\tfieldinput[%d]=%s", fidx, fieldinput[fidx]);
 				}
 			}
 			else
-			{
-				if (debug) fprintf(stderr, "\nrunscreen.c:\tgetenv(FLD->name) is NULL");
-				/* Make the first element the default option */
-				for (x = 0; FLD->range[x] != ',' && FLD->range[x] != '\0'; x++)
-				{
-					if (debug>8) fprintf(stderr, "\nrunscreen.c:\tMaking sure the first element is shown: fieldinput[%d][%d] = %c", fidx, x,  FLD->range[x]);
-					fieldinput[fidx][x] = FLD->range[x];
-				}
-
-				fieldinput[fidx][x] = '\0';
-
-
-			/* 	strcpy (fieldinput[fidx], FLD->range); */
-				if (debug>8) fprintf(stderr, "\nrunscreen.c:\tfieldinput[%d] set to %s", fidx, fieldinput[fidx]);
-				fflush(stderr);
-			}
-			if (strcmp (fieldinput[fidx], "NULL") == 0)
-			{
-				if (debug) fprintf(stderr, "\nrunscreen.c:\tfieldinput[%d] is %s, nullifying", fidx, fieldinput[fidx]);
 				strcpy (fieldinput[fidx], "");
-			}
-			else
-			{
-				if (debug) fprintf(stderr, "\nrunscreen.c:\tfielddefaults is NOT NULL");
-				/* format default value to the mask */
-				strcpy (fmtdefault, fieldinput[fidx]);
-			}
+			if (strcmp (fieldinput[fidx], "NULL") == 0)
+				strcpy (fieldinput[fidx], "");
+			if (debug) fprintf(stderr, "\nrunscreen.c:\tfieldinput[%d]=\"%s\"", fidx, fieldinput[fidx]);
+		else
+		/* format default value to the mask */
+		strcpy (fmtdefault, fieldinput[fidx]);
+
 		}
 
 		if (strlen(FLD->mask) > 0)
 		{
-			if (debug) fprintf(stderr, "\nrunscreen.c:\tfieldmask is not NULL");
 			wsptr = fmtdefault;
 			mask = FLD->mask;
 			source = fieldinput[fidx];
@@ -394,9 +383,6 @@ runscreen (screen_name, menu, opnumber)
 			}
 			*wsptr = '\0';
 		}
-		else
-			if (debug) fprintf(stderr, "\nrunscreen.c:\tfieldmask is NULL");
-
 		/* print default data */
 /* Ian Jones - Prevent garbage from being sent */
 /*
@@ -416,7 +402,6 @@ runscreen (screen_name, menu, opnumber)
 	do
 	{
    		Fld.strVal = fieldinput[fidx];
-		if (debug) fprintf(stderr, "\nrunscreen.c:\t1: FLd.strVal=%s", Fld.strVal);
 
 
 		if (exitkey == 999)
@@ -431,17 +416,10 @@ runscreen (screen_name, menu, opnumber)
 		/* if noinput == FALSE prompt for input */
 		if (!FLD->noinput)
 		{
-			if (debug>1) fprintf(stderr, "\nrunscreen.c:\t!FLD->noinput");
 			/* Set the global variable 'include_mask' as we want */
 			/* to preserve the mask in the variable.            */
 			if (FLD->type == DATE && FLD->include_mask)
-			{
-				if (debug>1) fprintf(stderr, "\nrunscreen.c:\tDATE type and include_mask");
 				include_mask=1;
-			}
-
-			if (debug>1) fprintf(stderr, "\nrunscreen.c:\tcalling GetInput");
-			if (debug>1) fprintf(stderr, "\nrunscreen.c:\t2: FLd.strVal=%s", Fld.strVal);
 
    			exitkey = GetInput (swin, FLD->row, FLD->col, &Fld, 
 				/* A_REVERSE, FLD->mask, FLD->range, FLD->length,  */
@@ -450,15 +428,11 @@ runscreen (screen_name, menu, opnumber)
 				NOAUTO, FLD->mustenter, ErrRow, ErrRow, 
 				promptptr, helpfile, FLD->name);
 
-			if (debug>1) fprintf(stderr, "\nrunscreen.c:\tback from GetInput");
-			if (debug>1) fprintf(stderr, "\nrunscreen.c:\t3: FLd.strVal=%s", Fld.strVal);
-
 			include_mask=0;
 
 		}
 		else
 		{
-			if (debug>1) fprintf(stderr, "\nrunscreen.c:\tFLD->noinput");
 			/* use the exitkey from the last field */
 			if (exitkey != KEY_UP)
 				exitkey = KEY_DOWN;
@@ -474,7 +448,8 @@ runscreen (screen_name, menu, opnumber)
 		if (exitkey == KeyAccept)	exitkey = KEY_ACCEPT;
 
 		/* if exitlastfield accept input and exit on last field */
-		if (SRN->exitlastfield && fidx == fieldcount && exitkey == KEY_RETURN)
+		if (SRN->exitlastfield && fidx == fieldcount && 
+		    exitkey == KEY_RETURN)
 			exitkey = KEY_ACCEPT;
 
 		switch (exitkey)
@@ -515,14 +490,12 @@ runscreen (screen_name, menu, opnumber)
 			break;
 
 		   case KEY_TAB:
-/* going back 4 fields is silly */
-/*			fidx += 4; */
+			fidx += 4;
 			fidx = fidx >= fieldcount ? 0 : ++fidx;
 			break;
 
 		   case KEY_BTAB:
-/* going back 4 fields is silly */
-/*			fidx -= 4; */
+			fidx -= 4;
 			fidx = fidx < 0 ? fieldcount : --fidx;
 			break;
 

@@ -1,9 +1,7 @@
 /*ex:se ts=4:*/
 #include	<curses.h>
 #include	<term.h>
-#include	<stdarg.h>
-#include	<stdlib.h>
-#include	<string.h>
+#include	<varargs.h>
 #include	"popmenu.h"
 
 
@@ -59,8 +57,9 @@ extern	MENU	*THEmenu[MAXMENUS+1];
 
 
 /*VARARGS*/
-popmenu (long va_alist, ...)
-	/* va_dcl                 * varargs.h */
+popmenu (va_alist)
+
+	va_dcl
 {
 	va_list	ap;
 	int		action;
@@ -76,8 +75,7 @@ popmenu (long va_alist, ...)
 	int	_runMenu();
 
 
-	/* va_start (ap);        * varargs.h */
-	va_start (ap, 1);
+	va_start (ap);
 	action = va_arg (ap, int);
 
 	switch (action)
@@ -149,8 +147,7 @@ popmenu (long va_alist, ...)
 		THEmenu[idx]->col = va_arg (ap, int);
 		THEmenu[idx]->title = va_arg (ap, char *);
 		THEmenu[idx]->helpfile = va_arg (ap, char *);
-		if (THEmenu[idx]->helpfile != (char *)NULL  &&
-		    strcmp (THEmenu[idx]->helpfile, "") == 0)
+		if (THEmenu[idx]->helpfile != (char *)NULL  && strcmp (THEmenu[idx]->helpfile, "") == 0)
 			THEmenu[idx]->helpfile = (char *)NULL;
 		THEmenu[idx]->winSize = va_arg (ap, int);
 		THEmenu[idx]->NumItems = -1;
@@ -180,7 +177,7 @@ popmenu (long va_alist, ...)
 					{
 					THEmenu[idx]->width = strlen(ws);
 					if (debug)
-						fprintf(stderr, "\n2 popmenu.c:\tTHEmenu[idx]->width = %d",THEmenu[idx]->width);
+						fprintf(stderr, "\n2 popmenu.c:\t1 THEmenu[idx]->width = %d",THEmenu[idx]->width);
 					}
 				ws += wssize ;
 			}
@@ -195,7 +192,7 @@ popmenu (long va_alist, ...)
 				if (strlen(*wws) > THEmenu[idx]->width) {
 					THEmenu[idx]->width = strlen(*wws);
 					if (debug)
-						fprintf(stderr, "\n2 popmenu.c:\tTHEmenu[idx]->width = %d",THEmenu[idx]->width);
+						fprintf(stderr, "\n2 popmenu.c:\t2 THEmenu[idx]->width = %d",THEmenu[idx]->width);
 				}
 				wws++ ;
 			}
@@ -212,7 +209,7 @@ popmenu (long va_alist, ...)
 		if ( THEmenu[idx]->winSize > LINES-THEmenu[idx]->row-2 ) 
 			THEmenu[idx]->winSize = LINES - THEmenu[idx]->row - 2 ;
 /*		if (debug)
-**			fprintf(stderr, "\n3 popmenu.c:\tTHEmenu[idx]->width = %d, THEmenu[idx]->winSize = %d, items = %d, row = %d, col = %d",THEmenu[idx]->width, THEmenu[idx]->winSize, THEmenu[idx]->NumItems, THEmenu[idx]->row, THEmenu[idx]->col);
+			fprintf(stderr, "\n3 popmenu.c:\tTHEmenu[idx]->width = %d, THEmenu[idx]->winSize = %d, items = %d, row = %d, col = %d",THEmenu[idx]->width, THEmenu[idx]->winSize, THEmenu[idx]->NumItems, THEmenu[idx]->row, THEmenu[idx]->col);
 */
 
 		/*
@@ -306,6 +303,7 @@ _runMenu (menu)
 	*/
 	for (i=0; i < menu->winSize && top+i-1 < menu->NumItems+1; i++)
 		mvwprintw (menu->win, i+1, 2, "%s", menu->items[top+i-1]);
+
 	drawbox( menu->win, 1, 1, menu->winSize+2, menu->width+4,
 			StandoutLine, StandoutLine,
 			(menu->winSize >= 4  &&

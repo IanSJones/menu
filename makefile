@@ -44,20 +44,23 @@ LIBDIR =
 # 64 bit PA RISC 2.0 (PA8000) below
 
 
+### Hp-UX ###
+#
 # HPUX 64 bit compile - NB libcur_colr won't link at 64 bit
 # CFLAGS = -I$(INCDIR) +DA2.0W -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g
-# CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g +DAportable
-
+CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g +DAportable
 # LIBS = -lHcurses -ltermcap -lc -lm -ll -ly
 ### LIBS = -lc -lm -ll -lcurses -l:libcur_colr.sl
-# LIBS = -lc -lm -ll -lcurses
+LIBS = -lc -lm -ll -lcurses
+#
 #############
 
 ### Linux ###
 #
-CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -DLINUX -g
-LEXOPT=-l
-LIBS = -lcurses -lc -lm -lcrypt -lfl
+# CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -DLINUX -g
+# LEXOPT=-l
+# LIBS = -lcurses -lc -lm -lfl -lcrypt
+#
 #############
 
 YFLAGS = -d
@@ -133,8 +136,8 @@ runrealid: runrealid.c
 about:	about.o
 
 about.o: about.c
-	cc -o about about.c
-	cc -c -D_ROUTINE about.c
+	cc +DAportable -o about about.c
+	cc +DAportable -c -D_ROUTINE about.c
 	@echo
 	@echo ============================================
 	@echo Dont forget...
@@ -150,9 +153,9 @@ about.o: about.c
 
 #can_i_see.o: parse_can_i_see.y lex_can_i_see.l can_i_see.c lexio.h can_i_see.h
 can_i_see.o: parse_can_i_see.o lex_can_i_see.o can_i_see.c lexio.h can_i_see.h
-	cc -o can_i_see can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
+	cc +DAportable -o can_i_see can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
 	rm -f can_i_see.o
-	cc -c -D_ROUTINE can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
+	cc +DAportable -c -D_ROUTINE can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
 	@echo
 	@echo ============================================
 	@echo Dont forget...
@@ -164,7 +167,7 @@ can_i_see.o: parse_can_i_see.o lex_can_i_see.o can_i_see.c lexio.h can_i_see.h
 	@echo
 
 can_i_seeusermap.o: can_i_see.c lexio.h can_i_see.h parse_can_i_see.y lex_can_i_see.l
-	cc -c -ocan_i_seeusermap.o -D_ROUTINE $(CFLAGS) can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
+	cc +DAportable -c -ocan_i_seeusermap.o -D_ROUTINE $(CFLAGS) can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
 
 checkpass: checkpass.c
 	$(CC) $(CFLAGS) checkpass.c -o $@
@@ -211,7 +214,7 @@ clean:
 
 Main.o:		Main.c menu.h popmenu.h
 Mainusermap.o:	Main.c menu.h popmenu.h
-		cc -c -oMainusermap.o $(CFLAGS) Main.c
+		cc +DAportable -c -oMainusermap.o $(CFLAGS) Main.c
 ParseOpton.o:	ParseOpton.c menu.h
 ParseBaner.o:	ParseBaner.c menu.h
 ParseBox.o:	ParseBox.c menu.h
@@ -237,7 +240,7 @@ ParseDeSrn.o: 	ParseDeSrn.y LexDeSrn.l menu.h
 		rm -f y.tab.c
 parse_can_i_see.o: parse_can_i_see.y lex_can_i_see.l can_i_see.h lexio.h
 		yacc -l -d -p ij parse_can_i_see.y
-		cc -c y.tab.c -o parse_can_i_see.o
+		cc +DAportable -c y.tab.c -o parse_can_i_see.o
 #		mv y.tab.o parse_can_i_see.o
 		mv y.tab.h lex_can_i_see.h
 		rm -f y.tab.c	
@@ -268,13 +271,13 @@ keyboard.o:	keyboard.c menu.h
 propeller.o:	propeller.c menu.h
 runscreen.o:	menu.h terminal.h
 LexDeSrn.o: 	LexDeSrn.l ParseDeSrn.y menu.h
-		flex LexDeSrn.l
+		lex LexDeSrn.l
 		cc -c $(CFLAGS) lex.yy.c
 		mv lex.yy.o LexDeSrn.o
 		rm -f lex.yy.c
 		rm -f y.tab.h
 lex_can_i_see.o: lex_can_i_see.l parse_can_i_see.y can_i_see.h lexio.h
-		flex $(LEXOPT) -t lex_can_i_see.l | sed 's/yy/ij/g' > lex.yy.c
+		lex $(LEXOPT) -t lex_can_i_see.l | sed 's/yy/ij/g' > lex.yy.c
 		cc -c $(CFLAGS) lex.yy.c
 		mv lex.yy.o lex_can_i_see.o
 		rm -f lex.yy.c

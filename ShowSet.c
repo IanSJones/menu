@@ -1,3 +1,4 @@
+/*ex:se ts=8*/
 #include	<curses.h>
 #include	"GetInput.h"
 #include	<stdio.h>
@@ -6,21 +7,21 @@ extern 	int	debug;
 
 ShowSet(win, rowStart, colStart, fldAttrib, fldRange, fldLength, pNum, colEnd, charKeyed, origAttr)
 	WINDOW		*win ;		/* Window	    		    */
-	int			rowStart ;
-	int			colStart ;
-	int			fldAttrib ;	/* Curses attribute		    */
+	int		rowStart ;
+	int		colStart ;
+	int		fldAttrib ;	/* Curses attribute		    */
 	char		*fldRange ;	/* enumeration list for SET 	    */
 	unsigned	fldLength ;	/* Maximum length of output 	    */
-	int			*pNum ;		/* enum to display */
-	int			colEnd ;
+	int		*pNum ;		/* enum to display */
+	int		colEnd ;
 	char		*charKeyed ;	/* characters keyed */
-	int			origAttr[] ;	/* original attributes for field */
+	int		origAttr[] ;	/* original attributes for field */
 {
-	char		*fldWrk ;
-	int			count ;
-	int			col ;
-	int			y, x;			/* y and x co-ords of cursor */
-	int			i, j;			/* counter */
+	char	*fldWrk ;
+	int	count ;
+	int	col ;
+	int	y, x;			/* y and x co-ords of cursor */
+	int	i, j;			/* counter */
 
 
 	wmove (win, rowStart, colStart) ;
@@ -35,7 +36,7 @@ ShowSet(win, rowStart, colStart, fldAttrib, fldRange, fldLength, pNum, colEnd, c
 		if (count == *pNum)
 			break ;
 
-		while (*fldWrk != ','  && *fldWrk != ' '  &&  *fldWrk != '\0')
+		while (*fldWrk != ','  &&  *fldWrk != '\0')
 			fldWrk++ ;
 
 		if (*fldWrk == '\0') {
@@ -54,7 +55,7 @@ ShowSet(win, rowStart, colStart, fldAttrib, fldRange, fldLength, pNum, colEnd, c
 		wattrset (win, fldAttrib) ;
 
 	col = colStart ;
-	while (*fldWrk != ','  &&  *fldWrk != ' '  &&  *fldWrk != '\0') {
+	while (*fldWrk != ','  &&  *fldWrk != '\0') {
 		if(fldAttrib == -1)
 			wattrset(win, origAttr[col++ - colStart]) ;
 		waddch (win, *fldWrk++) ;

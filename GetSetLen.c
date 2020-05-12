@@ -13,9 +13,10 @@
 #include	<stdio.h>
 
 GetSetLen(fldRange)
-	char	*fldRange ;	/* range of valid values for output */
+	char		*fldRange ;	/* range of valid values for output */
 {
-	int		len, fldLength ;
+	int	len,
+		fldLength ;
 	char	*fldWrk ;
 	extern int debug;
 

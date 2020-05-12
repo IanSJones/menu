@@ -535,7 +535,10 @@ showTOC (TOC)
 	strcpy (menu[count], "");
 
 	/* center on screen */
-	popmenu (9, CREATEMENU, menuid, (LINES/2)-(count/2)-3, (COLS/2)-(length/2)-2, "Help - Table Of Contents", "", count, sizeof(menu[0]), menu);
+	popmenu (CREATEMENU, menuid, (LINES/2)-(count/2)-3, (COLS/2)-(length/2)-2, 
+			"Help - Table Of Contents", "", count, sizeof(menu[0]), 
+			menu);
 	rc = popmenu (menuid);
 	return (rc);
 }
+/* Paul J. Condie  12/88 */

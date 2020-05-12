@@ -10,15 +10,15 @@
  */
 
 #include <pwd.h>
-#include <unistd.h>
-#include <crypt.h>
 
 main(argc, argv)
 int argc;
 char *argv[];
 {
 	struct 	passwd *getpwnam(), *pwentry;
-	char 	salt[2], *crypt(), *encryptedpw;
+	char 	salt[2], 
+		*crypt(),
+		*encryptedpw;
 
 
 	/* check number of arguments */

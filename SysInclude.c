@@ -63,7 +63,7 @@ SysInclude (keyword, includefile, menu, KeyWord, ParseKey, gnames, gfiles,
 		if (debug) fprintf(stderr, "\nSysInclude.c:\t%s=%s", varname, filename);
 	}
 		
-	strcpy (unixfile, findfile (2, filename, getenv("MENUDIR"), ""));
+	strcpy (unixfile, findfile (filename, getenv("MENUDIR"), ""));
       	if ((newfile = fopen (unixfile, "r")) == NULL)
       	{
         	BEEP;

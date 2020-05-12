@@ -121,7 +121,7 @@ ParInclude (keyword, menufile, menu, KeyWord, ParseKey, gnames, gfiles,
 	if (filename[0] == '/') 
 		strcpy(unixfile, filename);	/* copy absolute path */
 	else
-		strcpy (unixfile, findfile (2, filename, getenv("MENUDIR"), ""));
+		strcpy (unixfile, findfile (filename, getenv("MENUDIR"), ""));
       	if ((newfile = fopen (unixfile, "r")) == NULL)
       	{
         	BEEP;

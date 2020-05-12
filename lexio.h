@@ -27,14 +27,14 @@ extern int lexio_open( /* const char *filename */);
 extern void lexio_close();
 
 /*	To be used by lex or yacc */
-/* extern void ijerror( * printf() - syntax * ); */
+extern void ijerror( /* printf() - syntax */ );
 
 /*	These are for information only */
 extern char lexio_filename[];
 extern int lexio_lineno;
 
 #endif
-/* #define input() lexio_input() */
+#define input() lexio_input()
 #ifdef LINUX
 #ifdef YY_INPUT
 #undef YY_INPUT
@@ -48,7 +48,7 @@ extern FILE *inputfile;
 	if (debug>6) fprintf(stderr, "\nlexio.h:\twithin YY_INPUT"); \
 	if (not_read_user_file) { \
 		not_read_user_file=0; \
-		strcpy(lexio_filename, dirname(lexio_filename)); \
+		strcpy(lexio_filename, (char *)dirname(lexio_filename)); \
 		strcat(lexio_filename, "/menu.conf.d/"); \
 		strcat(lexio_filename, realuser); \
 		inputfile = fopen(lexio_filename, "r"); \

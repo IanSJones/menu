@@ -13,11 +13,12 @@ int c = getc(yyin); \
 result = (c == EOF) ? YY_NULL : (buf[0] = c, 1); \
 }
 
+
 extern	int	debug;
 char	*sptr;
 extern	char	value[];		/* pointer to getval.c results area */
 
-/* char	*malloc(); */
+char	*malloc();
 %}
 %%
 %{

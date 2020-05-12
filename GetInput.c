@@ -1,5 +1,5 @@
-/*vi:se ts=8:*/
-/*ex:se ts=8:*/
+/*vi:se ts=4:*/
+/*ex:se ts=4:*/
 /*	GetInput.c */
 #include 	<ncurses/curses.h>
 #include 	<ctype.h>
@@ -28,8 +28,8 @@ FldUnPointer	Fld ;    	/* Pointer to union for field     */
 int   		fldAttrib ; 	/* Curses attribute         */
 char  		*fldMask ;  	/* mask for character string      */
 char  		*fldRange ; 	/* range of valid values for output */
-int   		fldLength; 	/* Maximum length of output       */
-int   		fldMin; 	/* Minimum length of output       */
+int   		fldLength; 		/* Maximum length of output       */
+int   		fldMin; 		/* Minimum length of output       */
 char  		fldCharType;	/* type of character           */
 char  		fldAdjust ; 	/* adjust/fill field           */
 char  		fldType ;   	/* type of field         */
@@ -50,13 +50,13 @@ char  		helpTag[] ; 	/* tag where help begins       */
    	int   	colBegInput;	/* column where input begins */
    	int   	ch ;            /* contains character keyed or being moved */
    	int   	notFinished ;   /* bool indicator that indicates when the user 
-					is finished with keying in data */
+							is finished with keying in data */
    	int   	setNumb ;       /* number to be returned showing which 
-					selection the user chose */
+							selection the user chose */
    	int   	controlKey ;    /* if not 0 then the user hit a control key */
    	int   	bytesKeyed ;    /* how many bytes were keyed */
    	int   	initFld ;       /* indicate if field was initialized going into 
-                              		this routine */
+                       		this routine */
    	char  	*fldStr ;       /* buffer that will contain output  */
    	char  	*charKeyed ;    /* characters keyed by the user Y/N */
 				/*
@@ -78,8 +78,7 @@ char  		helpTag[] ; 	/* tag where help begins       */
 
 
 
-    if (debug)
-        fprintf(stderr, "\nGetInput.c:\t");
+
 
 	if (fldCharType == PROTECT)
 	{
@@ -89,10 +88,6 @@ char  		helpTag[] ; 	/* tag where help begins       */
 		Fld->strVal[i] = '\0';
 	}
 
-   	/*
-	** bug fix  -  pjc  08/26/86
-	** bytesKeyed = 0
-	*/
    	setNumb = controlKey = bytesKeyed = 0;
 
 	/* find length of field from the values in fldRange */
@@ -177,7 +172,7 @@ mvinch seems to work...
    	{
       	setNumb = FindSet(Fld, fldRange, fldLength, fldType) ;
 
-		if (debug) fprintf(stderr, "\nGetInput.c:\tCalling ShowSet");
+		if (debug) fprintf(stderr, "\nGetInput.c:\tcalling ShowSet");
 
       	ShowSet(win, rowStart, colStart,
 				fldAttrib, fldRange, fldLength,
@@ -208,13 +203,14 @@ mvinch seems to work...
 			/* menuid = mrow + (mcol * 10) + fldLength; */
 			menuid = mrow * mcol * fldLength;
 			if (debug > 1)
-				fprintf(stderr, "\nGetInput.c:\trowStart = %d, colStart = %d, fldLength = %d, colEnd = %d, menuid = %d, _begy = %d", rowStart, colStart, fldLength, colEnd, menuid, win->_begy);
+				fprintf(stderr, "\nGetInput.c:\trowStart = %d, colStart = %d, fldLength = %d, colEnd = %d, menuid = %d, _begy = %d\n", rowStart, colStart, fldLength, colEnd, menuid, win->_begy);
 
-			if (debug) fprintf(stderr, "\nGetInput.c:\tCalling BuildMenu");
+			if (debug) fprintf(stderr, "\nGetInput.c:\tcalling BuildMenu");
 			BuildMenu (menu, fldRange);
-			if (debug) fprintf(stderr, "\nGetInput.c:\tCalling popmenu");
-			popmenu (9, NEWMENU, menuid, mrow, mcol, "", helpFile, LINES-mrow-2, sizeof(menu[0]), menu);
-			if (debug) fprintf(stderr, "\nGetInput.c:\treturned from popmenu");
+			if (debug) fprintf(stderr, "\nGetInput.c:\t1 calling popmenu");
+			popmenu (NEWMENU, menuid, mrow, mcol, "", 
+				helpFile, LINES-mrow-2, sizeof(menu[0]), menu);
+			if (debug) fprintf(stderr, "\nGetInput.c:\t1 returned from popmenu");
 
 		}
 
@@ -224,6 +220,7 @@ mvinch seems to work...
 			int	mrow;
 			int	mcol;
 
+			if (debug) fprintf(stderr, "\nGetInput.c:\tFILE_MANAGER");
 			/* try to put menu as close to the field as possible */
 			if ((rowStart + win->_begy) > 0)
 				mrow = rowStart + win->_begy - 1;
@@ -244,11 +241,12 @@ mvinch seems to work...
 			if (debug > 1)
 				fprintf(stderr, "\nGetInput.c:\trowStart = %d, colStart = %d, fldLength = %d, colEnd = %d, menuid = %d, _begy = %d\n", rowStart, colStart, fldLength, colEnd, menuid, win->_begy);
 
-			if (debug) fprintf(stderr, "\nGetInput.c:\tCalling BuildMenu");
+			if (debug) fprintf(stderr, "\nGetInput.c:\tcalling BuildMenu");
 			BuildMenu (menu, fldRange);
-			if (debug) fprintf(stderr, "\nGetInput.c:\tCalling popmenu");
-			popmenu (9, NEWMENU, menuid, mrow, mcol, "", helpFile, LINES-mrow-2, sizeof(menu[0]), menu);
-			if (debug) fprintf(stderr, "\nGetInput.c:\treturned from popmenu");
+			if (debug) fprintf(stderr, "\nGetInput.c:\t2 calling popmenu");
+			popmenu (NEWMENU, menuid, mrow, mcol, "", 
+				helpFile, LINES-mrow-2, sizeof(menu[0]), menu);
+			if (debug) fprintf(stderr, "\nGetInput.c:\t2 returned from popmenu");
 
 		}
    	} 
@@ -282,6 +280,7 @@ mvinch seems to work...
 
 	if (fldCharType == PROTECT)
 	{
+		if (debug) fprintf(stderr, "\nGetInput.c:\tPROTECT");
 		/* Password entry field */
 		wattrset (win, A_REVERSE);
 		strcpy (Fld->strVal, "");
@@ -836,8 +835,9 @@ mvinch seems to work...
 				if (fldCharType == FILE_MANAGER)
 				{
 					if (debug > 8) fprintf(stderr, "\nGetInput.c:\tProcessing FILE_MANAGER");
-					junk = popmenu (1, menuid);
-					if (debug > 8) fprintf(stderr, "\nGetInput.c:\treturned from popmenu");
+					if (debug > 8) fprintf(stderr, "\nGetInput.c:\t3 calling popmenu");
+					junk = popmenu (menuid);
+					if (debug > 8) fprintf(stderr, "\nGetInput.c:\t3 returned from popmenu");
 					setNumb = junk >= 1 ? junk-1 : setNumb;
 					strcpy (Fld->strVal, menu[setNumb]);
                   	ShowSet(win, rowStart, colStart, 
@@ -853,8 +853,8 @@ mvinch seems to work...
 				if (fldCharType == MENU)
 				{
 					if (debug > 8) fprintf(stderr, "\nGetInput.c:\tProcessing MENU");
-					junk = popmenu (1, menuid);
-					if (debug > 8) fprintf(stderr, "\nGetInput.c:\treturned from popmenu");
+					junk = popmenu (menuid);
+					if (debug > 8) fprintf(stderr, "\nGetInput.c:\t4 returned from popmenu");
 					setNumb = junk >= 1 ? junk-1 : setNumb;
 					strcpy (Fld->strVal, menu[setNumb]);
                   	ShowSet(win, rowStart, colStart, 
@@ -901,10 +901,7 @@ mvinch seems to work...
 			    		fldRange, fldLength, fldCharType, fldType, 
 			    		mustEnter, fldErrRow, fldDispRow, colEnd, 
 			    		fldStr, charKeyed, setNumb, origAttr) )
-		{
-			if (debug>2) fprintf(stderr, "\nGetInput.c:\tBack from IsFldOk - Fld=%s", *Fld);
            		break ;
-		}
          	else         
 	 		{
            		notFinished = TRUE ;

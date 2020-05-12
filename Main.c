@@ -232,15 +232,15 @@ main (argc, argv)
       		initmenu (&menu);			/* init menu defaults */
 
 		/* open menu script file */
-		strcpy (filename, findfile (2, menuname[mptr], getenv("MENUDIR"), ""));
+		strcpy (filename, findfile (menuname[mptr],
+			getenv("MENUDIR"), ""));
 			if (debug) fprintf(stderr, 
 				"\nMain.c:\t\t\tmenu number=%d\nMain.c:\t\t\tmenu filename=\"%s\"\nMain.c:\t\t\tmenuname[mptr]=%s", mptr, filename, menuname[mptr]);
       		if ((menufile = fopen (filename, "r")) == NULL)
 		{
             		BEEP;
-					if (debug)
-						fprintf(stderr, "\nMain.c:\t\t\tUnable to open menufile %s", filename);
-            		mvprintw (ErrRow-2, 0, "Unable to locate (%s) file.", menuname[mptr]);
+            		mvprintw (ErrRow-2, 0, "Unable to locate (%s) file.", 
+					menuname[mptr]);
             		shutdown ();
 		}
 
@@ -249,7 +249,8 @@ main (argc, argv)
 		**  Return Codes from parsedriver:
 		**	NOWAYJOSE - not authorized for this menu.
 		*/
-      		parse_rc = parsedriver (menufile, KeyWord, ParseKey, &menu, gnames, gfiles, &gindex);
+      		parse_rc = parsedriver (menufile, KeyWord, ParseKey, &menu, 
+				gnames, gfiles, &gindex);
       		fclose (menufile);
 
 			if (debug) fprintf(stderr, "\nMain.c:\t\t\tnumber_of_options=%d", number_of_options);

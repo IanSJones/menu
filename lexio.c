@@ -1,8 +1,7 @@
 /*	vi:set ts=4 sw=4:	*/
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
-#include <libgen.h>
+#include <varargs.h>
 
 #include "lexio.h"
 
@@ -83,8 +82,7 @@ int lexio_input()
 			if (rc == EOF) {
 				if (not_read_user_file) {
 					not_read_user_file=0;
-					/* strcpy(lexio_filename, (char *)dirname(lexio_filename)); */
-					strcpy(lexio_filename, dirname(lexio_filename));
+					strcpy(lexio_filename, (char *)dirname(lexio_filename));
 					strcat(lexio_filename, "/menu.conf.d/");
 					strcat(lexio_filename, realuser);
 					if (debug) fprintf(stderr, "\nlexio.c\tmenu config file=%s", lexio_filename);
@@ -126,16 +124,17 @@ char ch;
 
 /*	printf()-syntax */
 /*VARARGS0*/
-void ijerror(long va_alist, ...)
-/* va_dcl                  * varrags.h */
+void ijerror(va_alist)
+va_dcl
 {
 	va_list marker;
 	char *format;
-	va_start(marker, 1);
+	va_start(marker);
 
 	format = va_arg(marker, char *);
 
-	fprintf(stderr,"\rError: File %s(%d): ", lexio_filename, lexio_lineno);
+	fprintf(stderr,"\rError: File %s(%d): ", lexio_filename,
+										lexio_lineno);
 	vfprintf(stderr,format,marker);
 	fprintf(stderr,"\n");
 	fflush(stderr);
@@ -146,16 +145,17 @@ void ijerror(long va_alist, ...)
 
 /*	printf()-syntax */
 /*VARARGS0*/
-void ijwarn(long va_alist, ...)
-/* va_dcl                  * varrags.h */
+void ijwarn(va_alist)
+va_dcl
 {
 	va_list marker;
 	char *format;
-	va_start(marker, 1);
+	va_start(marker);
 
 	format = va_arg(marker, char *);
 
-	fprintf(stderr,"\rWarning: File %s(%d): ", lexio_filename, lexio_lineno);
+	fprintf(stderr,"\rWarning: File %s(%d): ", lexio_filename,
+										lexio_lineno);
 	vfprintf(stderr,format,marker);
 	fprintf(stderr,"\n");
 	fflush(stderr);

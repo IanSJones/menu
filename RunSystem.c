@@ -8,7 +8,6 @@
 #include	<stdlib.h>
 #include	<curses.h>
 #include	<ctype.h>
-#include	<errno.h>
 #include	"menu.h"
 
 extern	int	errno;

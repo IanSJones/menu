@@ -43,6 +43,7 @@ DisPrmpt(win, Fld, fldAttrib, fldMask, fldLength, fldCharType, fldAdjust, fldTyp
 		)
 	{
 	*/
+	if (debug>8) fprintf(stderr, "\nDisPrmpt.c\tfldHere we are");
 	if (((fldType == HEX  ||  fldType == CHAR)  &&  *Fld->strVal == '\0'))
 	{
 		if (debug>8) fprintf(stderr, "\nDisPrmpt.c\tfldType=HEX or CHAR");

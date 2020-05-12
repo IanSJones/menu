@@ -315,18 +315,14 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 		case KEY_TAB:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_TAB");
 			/* A tab will hop forward four options at a time. */
-/*
-** I don't like going forwards 4 - let's go forwards 1 field every time
-**
-**			if (menu->optioncount > 4)
-**			{
-**				*option += 4;
-**				if (*option > menu->optioncount)
-**					*option = 1 + *option - 
-**						  menu->optioncount - 1;
-**			}
-**			else
-*/
+			if (menu->optioncount > 4)
+			{
+				*option += 4;
+				if (*option > menu->optioncount)
+					*option = 1 + *option - 
+						  menu->optioncount - 1;
+			}
+			else
 				*option = *option >= menu->optioncount ? 1 : 
 					  ++(*option);
 			break;
@@ -334,17 +330,13 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 		case KEY_BTAB:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_BTAB");
 			/* A back tab will hop backward 4 options at a time. */
-/*
-** I don't like going back 4 - let's go back 1 field every time
-**
-**			if (menu->optioncount > 4)
-**			{
-**				*option -= 4;
-**				if (*option < 0)
-**					*option = menu->optioncount - abs(*option);
-**			}
-**			else
-*/
+			if (menu->optioncount > 4)
+			{
+				*option -= 4;
+				if (*option < 0)
+					*option = menu->optioncount - abs(*option);
+			}
+			else
 				*option = *option <= 1 ? menu->optioncount:--(*option);
 			break;
 
@@ -569,7 +561,9 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 		**	Search directories for a menu.hlp file.
 		**	If found display to screen.
 		*/
-			strcpy (command, findfile (4, helpfilename, ".", getenv("HELPDIR"), getenv("MENUDIR"), ""));
+			strcpy (command, findfile (helpfilename, ".",
+			    getenv("HELPDIR"), getenv("MENUDIR"),
+			    ""));
 #ifdef ALARM
 			alarm (0);		/* turn off mail check */
 			signal (SIGALRM, SIG_IGN);
@@ -687,7 +681,9 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			*/
 			if (select[0] == KeyHelp || select[0] == KEY_F1)
 			{
-				strcpy (command, findfile (4, helpfilename, ".", getenv("HELPDIR"), getenv("MENUDIR"), ""));
+				strcpy (command, findfile (helpfilename, 
+					".", getenv("HELPDIR"), 
+					getenv("MENUDIR"), ""));
 #ifdef ALARM
 				alarm (0);		/* turn off mail check */
 				signal (SIGALRM, SIG_IGN);
@@ -811,14 +807,16 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 				alarm (0);	/* turn off mail check */
 				signal (SIGALRM, SIG_IGN);
 #endif
-				popmenu (9, NEWMENU, GOTOMENU, gotorow, gotocol, "GOTO MENU", HELPFILE, LINES-2, sizeof(gnames[0]), gnames);
+				popmenu (NEWMENU, GOTOMENU, gotorow, gotocol, 
+				    "GOTO MENU", HELPFILE, LINES-2, 
+				    sizeof(gnames[0]), gnames);
 
 				move (ErrRow,0);
 				clrtoeol ();
 				BEEP;
 				mvprintw (ErrRow, 0, "Goto what menu ?");
 				refresh ();
-				exitkey = popmenu (1, GOTOMENU);
+				exitkey = popmenu (GOTOMENU);
 				touchwin (stdscr);
 				refresh ();
 #ifdef ALARM

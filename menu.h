@@ -30,8 +30,7 @@ static char ID_menu[] = "%W%   DeltaDate %G%   ExtrDate %H%";
 #define	MAXLEN		10240	 	/* max length of option command */
 #define	FIELDRANGELENGTH 15361		/* max length of field_range string */
 #define	MAXSCREENS	10		/* max .DEFINE_SCREEN per menu */
-/* #define	MAXFIELDS	20		/* max fields per .DEFINE_SCREEN */ 
-#define	MAXFIELDS	40		/* max fields per .DEFINE_SCREEN */ 
+#define	MAXFIELDS	20		/* max fields per .DEFINE_SCREEN */
 #define	ErrRow		(LINES-1)	/* last line to print error message */
 #define	GNAMEOFFSET	100		/* Offset return code for gnames */
 
@@ -241,7 +240,7 @@ struct FieldInfo
 	char	type;
 	char	adjust;
 	int	mustenter;
-	char	prompt	[256];
+	char	prompt	[100];
 	char	terminator[3];				/* field terminators */
 	int	noinput;
 	int	include_mask;				/* User wants DATE mask

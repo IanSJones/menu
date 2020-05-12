@@ -62,7 +62,7 @@ profhead:		PROFILE identifier
 				{
 					if (debug) fprintf(stderr, "\nparse_can_i_see.y:\tprocessing profhead\nparse_can_i_see.y:\t$2.string=%s", $2.string);
 					if (findprofile($2.string) != NULL)
-						ijerror(2, "profile %s is already defined", $2.string);
+						ijerror("profile %s is already defined", $2.string);
 					$$.string = $2.string;
 				}
 
@@ -83,10 +83,10 @@ usrhead:		USER identifier
 				{
 					if (debug) fprintf(stderr, "\nparse_can_i_see.y:\tprocessing usrhead\nparse_can_i_see.y:\t$1.string=%s\nparse_can_i_see.y:\t$2.string=%s", $1.string, $2.string);
 					if (getpwnam($2.string) == NULL)
-						ijwarn(2, "Unknown user \"%s\"\n", $2.string);
+						ijwarn("Unknown user \"%s\"\n", $2.string);
 
 					if (finduser($2.string) != NULL)
-						ijerror(2, "user %s is already defined", $2.string);
+						ijerror("user %s is already defined", $2.string);
 					$$.string = $2.string;
 				}
 
@@ -107,7 +107,7 @@ privilege:		allow			{ $$.privs = $1.privs; }
 profileref:		'[' identifier ']' 
 				{
 					if (findprofile($2.string) == NULL)
-						ijerror(2, "unknown profile \"%s\"",$2.string);
+						ijerror("unknown profile \"%s\"",$2.string);
 					$$.privs = dopriv(P_PROFILE, $2.string);
 				};
 
@@ -140,7 +140,7 @@ usrname:		identifier
 				{
 					if (debug) fprintf(stderr, "\nparse_can_i_see.y:\tprocessing usrname");
 					if (getpwnam($1.string) == NULL)
-						ijwarn(2, "Unknown user \"%s\"\n", $1.string);
+						ijwarn("Unknown user \"%s\"\n", $1.string);
 
 					$$.usrlist = (struct UserList *)
 									mymalloc(sizeof(struct UserList));
@@ -168,7 +168,7 @@ size_t bytes;
 	void * rc;
 	rc = malloc(bytes);
 	if (rc == NULL)
-		ijerror(1, "Out of memoy for %d bytes!",bytes);
+		ijerror("Out of memoy for %d bytes!",bytes);
 	return rc;
 }
 

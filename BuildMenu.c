@@ -30,7 +30,7 @@ BuildMenu (menu, fldRange)
 		/* skip junk */
 		while (*rptr == ','  || *rptr == ' '  ||  *rptr == '\t')
 			*rptr++;
-		if (debug>8) fprintf(stderr, "\nBuildMenu.c:\tmenu[%d]=%s", eidx, menu[eidx]);
+		if (debug>8) fprintf(stderr, "menu[%d]=%s\n", eidx, menu[eidx]);
 		eidx++;
 		if (eidx == MAXITEMS) {
 			mvprintw (ErrRow-2,0, "Error:");
