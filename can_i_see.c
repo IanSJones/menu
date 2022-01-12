@@ -6,9 +6,7 @@
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <sys/stat.h>
-#include <varargs.h>
 #include <pwd.h>
-#include <varargs.h>
 #include <errno.h>
 #include <utmp.h>
 #include <syslog.h>

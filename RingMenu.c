@@ -44,6 +44,7 @@ RingMenu (win, line, opt, title, opt_table )
 {
 	register short	i, ii, ch ;
 
+	if (debug) fprintf(stderr, "\nRingMenu.c:\there we are");
 	/*
 	 * Initializations
 	 */

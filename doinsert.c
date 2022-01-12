@@ -9,6 +9,7 @@
 
 #include	<curses.h>
 #include	"GetInput.h"
+extern int debug;
 
 
 doinsert (win, row, col, colStart, colEnd, charKeyed, fldMask, fldCharType,
@@ -34,6 +35,7 @@ doinsert (win, row, col, colStart, colEnd, charKeyed, fldMask, fldCharType,
 	char	*fldWrk;
 	int	junk;
 
+	if (debug) fprintf(stderr, "\ndoinsert.c\there we are");
 
 	colSave = col;		/* cursor location */
 

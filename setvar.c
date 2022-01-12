@@ -25,7 +25,7 @@ setvariable (cptr)
 		;
 	if (**cptr == '\0') return (EOF);	/* end of line */
 
-	if (debug) fprintf(stderr, "\nsetvar.c:\tjunk characters removed:\n%s", *cptr);
+	if (debug) fprintf(stderr, "\nsetvar.c:\tjunk characters removed: %s", *cptr);
 	/* get the enviroment variable */
 	for (i = 0; **cptr != '=' && **cptr != '\0'; i++, (*cptr)++)
 		variable[i] = **cptr;

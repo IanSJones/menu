@@ -66,8 +66,8 @@ SetTerm ()
 	**  Parse the .menuinit file
 	**  First look in current directory then $HOME then in $MENUDIR
 	*/
-	strcpy (filename, findfile (MENUINIT, ".", 
-		(char *)getenv("HOME"), (char *)getenv("MENUDIR"), ""));
+	if (debug) fprintf(stderr, "\nSetTerm.c:\tfindfile (%s, \".\", %s, %s, \"\")", MENUINIT, (char *)getenv("HOME"), (char *)getenv("MENUDIR"));
+	strcpy (filename, findfile (MENUINIT, ".", (char *)getenv("HOME"), (char *)getenv("MENUDIR"), ""));
 	if ((menuinit = fopen (filename, "r")) == NULL)
 	{
 		/* no file found - use the defaults */
@@ -80,7 +80,7 @@ SetTerm ()
 	/* set terminal keys */
 	while (fgets (line, BUFSIZE, menuinit) != (char *)NULL)
 	{
-		if (debug) fprintf(stderr, "\nSetTerm.c:\t%s", line);
+		if (debug) fprintf(stderr, "\nSetTerm.c:\tline contains: %s", line);
 		if (strncmp ("HOTKEYS", line, 7) == 0)
 			HotKeys = 1;
 			
@@ -151,47 +151,45 @@ SetTerm ()
 		else if (strncmp ("KEY_TOC", line, 7) == 0)
 			sscanf (s1, "%d", &KeyTOC);
 		else if (strncmp ("LINETYPE", line, 8) == 0)
-			{
-				sscanf (s1, "%s", boxtype);
-				if (debug) fprintf(stderr, "\nSetTerm.c: LINETYPE %s", boxtype);
+		{
+			sscanf (s1, "%s", boxtype);
+			if (debug) fprintf(stderr, "\nSetTerm.c:\tLINETYPE %s", boxtype);
 
-				if (strcmp (boxtype, "DumbLine") == 0)
-					maintype = DumbLine;
-				else	if (strcmp (boxtype, "StandoutLine") == 0)
-						maintype = StandoutLine;
-				else	if (strcmp (boxtype, "SingleLine") == 0 ||
-		    			strcmp (boxtype, "DrawLine") == 0)
-						maintype = SingleLine;
-				else	if (strcmp (boxtype, "MosaicLine") == 0)
-						maintype = MosaicLine;
-				else	if (strcmp (boxtype, "DiamondLine") == 0)
-						maintype = DiamondLine;
-				else	if (strcmp (boxtype, "DotLine") == 0)
-						maintype = DotLine;
-				else	if (strcmp (boxtype, "PlusLine") == 0)
-						maintype = PlusLine;
+			if (strcmp (boxtype, "DumbLine") == 0)
+				maintype = DumbLine;
+			else	if (strcmp (boxtype, "StandoutLine") == 0)
+					maintype = StandoutLine;
+			else	if (strcmp (boxtype, "SingleLine") == 0 || strcmp (boxtype, "DrawLine") == 0)
+					maintype = SingleLine;
+			else	if (strcmp (boxtype, "MosaicLine") == 0)
+					maintype = MosaicLine;
+			else	if (strcmp (boxtype, "DiamondLine") == 0)
+					maintype = DiamondLine;
+			else	if (strcmp (boxtype, "DotLine") == 0)
+					maintype = DotLine;
+			else	if (strcmp (boxtype, "PlusLine") == 0)
+					maintype = PlusLine;
 			
-				/* get border type for inactive menu - dim (high 8 bits) */
-				sscanf (s1, "%*s%s", boxtype);
+			/* get border type for inactive menu - dim (high 8 bits) */
+			sscanf (s1, "%*s%s", boxtype);
 
-				if (debug) fprintf(stderr, " %s", boxtype);
+			if (debug) fprintf(stderr, "\nSetTerm.c:\tboxtype=%s", boxtype);
 
-				if (strcmp (boxtype, "DumbLine") == 0)
+			if (strcmp (boxtype, "DumbLine") == 0)
+				shadowtype = maintype | (DumbLine << 9);
+			else	if (strcmp (boxtype, "StandoutLine") == 0)
 					shadowtype = maintype | (DumbLine << 9);
-				else	if (strcmp (boxtype, "StandoutLine") == 0)
-						shadowtype = maintype | (DumbLine << 9);
-				else	if (strcmp (boxtype, "SingleLine") == 0 ||
-		    			strcmp (boxtype, "DrawLine") == 0)
-						shadowtype = maintype | (SingleLine << 9);
-				else	if (strcmp (boxtype, "MosaicLine") == 0)
-						shadowtype = maintype | (MosaicLine << 9);
-				else	if (strcmp (boxtype, "DiamondLine") == 0)
-						shadowtype = maintype | (DiamondLine << 9);
-				else	if (strcmp (boxtype, "DotLine") == 0)
-						shadowtype = maintype | (DotLine << 9);
-				else	if (strcmp (boxtype, "PlusLine") == 0)
-						shadowtype = maintype | (PlusLine << 9);
-			}
+			else	if (strcmp (boxtype, "SingleLine") == 0 || strcmp (boxtype, "DrawLine") == 0)
+					shadowtype = maintype | (SingleLine << 9);
+			else	if (strcmp (boxtype, "MosaicLine") == 0)
+					shadowtype = maintype | (MosaicLine << 9);
+			else	if (strcmp (boxtype, "DiamondLine") == 0)
+					shadowtype = maintype | (DiamondLine << 9);
+			else	if (strcmp (boxtype, "DotLine") == 0)
+					shadowtype = maintype | (DotLine << 9);
+			else	if (strcmp (boxtype, "PlusLine") == 0)
+					shadowtype = maintype | (PlusLine << 9);
+		}
 	}
 	fclose (menuinit);
 	return (0);

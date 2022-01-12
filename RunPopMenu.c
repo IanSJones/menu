@@ -50,6 +50,8 @@ RunPopMenu (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
 	int			samecount=0;
 
 
+	if (debug) fprintf(stderr,"\nRunPopMenu.c:\there we are");
+
 	comptr = menu->option[opnumber]->command;
 	SKIPJUNK(comptr);
    	sscanf (comptr, "%s", command);		/* do we have NoDim */
@@ -99,7 +101,10 @@ RunPopMenu (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
       	if ((menufile = fopen (filename, "r")) == NULL)
       	{
         	BEEP;
-            	mvprintw (ErrRow-2, 0, "Unable to locate (%s) file.", command);
+		if (debug) fprintf(stderr,"\nRunPopMenu.c:\tUnable to locate file: %s/%s", getenv("MENUDIR"), command);
+            	mvprintw (ErrRow-2, 0, "Unable to locate file: %s/%s", getenv("MENUDIR"), command);
+		endwin();
+		fprintf(stderr,"\nUnable to locate file: %s/%s", getenv("MENUDIR"), command);
             	shutdown ();
       	}
 
@@ -224,8 +229,7 @@ RunPopMenu (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
 		strcpy (PopMenu[i], pmenu.option[i]->description);
 	strcpy (PopMenu[i], "");
 	if (debug) fprintf(stderr, "\nRunPopMenu.c:\tcalling popmenu with row=%d, col=%d, title=%s", row, col, poptitle);
-	popmenu (NEWMENU, popmid, row, col, poptitle, HELPFILE,
-			LINES-2, sizeof(PopMenu[0]), PopMenu);
+	popmenu (NEWMENU, popmid, row, col, poptitle, HELPFILE, LINES-2, sizeof(PopMenu[0]), PopMenu);
 
 	rc = popmenu (popmid);
 

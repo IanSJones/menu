@@ -1,16 +1,8 @@
-# define yyparse ijparse
-# define yylex ijlex
-# define yyerror ijerror
-# define yylval ijlval
-# define yychar ijchar
-# define yydebug ijdebug
-# define yymaxdepth ijmaxdepth
-# define yynerrs ijnerrs
-# define PROFILE 257
-# define ALLOW 258
-# define DENY 259
-# define IDENTIFIER 260
-# define PATTERN 261
-# define USER 262
-# define COMMA 263
-# define AS 264
+#define PROFILE 257
+#define ALLOW 258
+#define DENY 259
+#define IDENTIFIER 260
+#define PATTERN 261
+#define USER 262
+#define COMMA 263
+#define AS 264

@@ -40,6 +40,7 @@ ShowChar (win, rowStart, colStart, fldAttrib, fldMask, fldRange, fldLength,
    	char  		cmdstr[16] ;
 	int		junk;
 
+	if (debug>3) fprintf(stderr, "\nShowChar.c:\there we are");
 
    	getyx(win, row, col) ;
 

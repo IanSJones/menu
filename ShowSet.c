@@ -1,83 +1,85 @@
 /*ex:se ts=8*/
-#include	<curses.h>
-#include	"GetInput.h"
-#include	<stdio.h>
+#include        <curses.h>
+#include        "GetInput.h"
+#include        <stdio.h>
 
-extern 	int	debug;
+extern         int        debug;
 
 ShowSet(win, rowStart, colStart, fldAttrib, fldRange, fldLength, pNum, colEnd, charKeyed, origAttr)
-	WINDOW		*win ;		/* Window	    		    */
-	int		rowStart ;
-	int		colStart ;
-	int		fldAttrib ;	/* Curses attribute		    */
-	char		*fldRange ;	/* enumeration list for SET 	    */
-	unsigned	fldLength ;	/* Maximum length of output 	    */
-	int		*pNum ;		/* enum to display */
-	int		colEnd ;
-	char		*charKeyed ;	/* characters keyed */
-	int		origAttr[] ;	/* original attributes for field */
+        WINDOW  *win ;             /* Window                                */
+        int     rowStart ;
+        int     colStart ;
+        int     fldAttrib ;        /* Curses attribute                    */
+        char    *fldRange ;        /* enumeration list for SET             */
+        unsigned fldLength ;       /* Maximum length of output             */
+        int     *pNum ;            /* enum to display */
+        int     colEnd ;
+        char    *charKeyed ;       /* characters keyed */
+        int     origAttr[] ;       /* original attributes for field */
 {
-	char	*fldWrk ;
-	int	count ;
-	int	col ;
-	int	y, x;			/* y and x co-ords of cursor */
-	int	i, j;			/* counter */
+        char    *fldWrk ;
+        int     count ;
+        int     col ;
+        int     y, x;              /* y and x co-ords of cursor */
+        int     i, j;              /* counter */
 
 
-	wmove (win, rowStart, colStart) ;
+        wmove (win, rowStart, colStart) ;
 
-	fldWrk = fldRange ;
+        fldWrk = fldRange ;
 
-	count = 0 ;
+        count = 0 ;
 
-	if (debug) fprintf(stderr, "\nShowSet.c:\tHere we are");
-	while (*fldWrk != '\0') {
+        if (debug) fprintf(stderr, "\nShowSet.c:\tHere we are");
+        if (debug) fprintf(stderr, "\nShowSet.c:\tShowSet(win, rowStart, colStart, fldAttrib, fldRange, fldLength, pNum, colEnd, charKeyed, origAttr)");
+        if (debug) fprintf(stderr, "\nShowSet.c:\tShowSet(%d, %d, %d, %d, %s, %d, %d, %d, %d, %d)", win, rowStart, colStart, fldAttrib, fldRange, fldLength, pNum, colEnd, charKeyed, origAttr);
 
-		if (count == *pNum)
-			break ;
+        while (*fldWrk != '\0') {
 
-		while (*fldWrk != ','  &&  *fldWrk != '\0')
-			fldWrk++ ;
+                if (count == *pNum)
+                        break ;
 
-		if (*fldWrk == '\0') {
-			fldWrk = fldRange ;
-			*pNum = 0 ;
-			break ;
-		}
+                while (*fldWrk != ','  &&  *fldWrk != '\0')
+                        fldWrk++ ;
 
-		while (*fldWrk == ','  ||  *fldWrk == ' ')
-			fldWrk++ ;
+                if (*fldWrk == '\0') {
+                        fldWrk = fldRange ;
+                        *pNum = 0 ;
+                        break ;
+                }
 
-		count++ ;
-	}
+                while (*fldWrk == ','  ||  *fldWrk == ' ')
+                        fldWrk++ ;
 
-	if(fldAttrib != -1)
-		wattrset (win, fldAttrib) ;
+                count++ ;
+        }
 
-	col = colStart ;
-	while (*fldWrk != ','  &&  *fldWrk != '\0') {
-		if(fldAttrib == -1)
-			wattrset(win, origAttr[col++ - colStart]) ;
-		waddch (win, *fldWrk++) ;
-		*charKeyed++ = 'Y' ;
-		fldLength-- ;
-	}
+        if(fldAttrib != -1)
+                wattrset (win, fldAttrib) ;
 
-	if(fldAttrib != -1)
-		wattrset (win, 0) ;
+        col = colStart ;
+        while (*fldWrk != ','  &&  *fldWrk != '\0') {
+                if(fldAttrib == -1)
+                        wattrset(win, origAttr[col++ - colStart]) ;
+                /* if (debug>8) fprintf(stderr, "\nShowSet.c:\twaddch (%d, %c)", win, *fldWrk); */
+                waddch (win, *fldWrk++) ;
+                *charKeyed++ = 'Y' ;
+                fldLength-- ;
+        }
 
-	while (fldLength--) {
-		*charKeyed++ = 'N' ;
-		if(fldAttrib == -1)
-			wattrset(win, origAttr[col++ - colStart]) ;
-		waddch (win, ' ') ;
-	}
+        if(fldAttrib != -1)
+                wattrset (win, 0) ;
 
-	wmove (win, rowStart, colStart) ;
-	wattrset(win, 0) ;
+        while (fldLength--) {
+                *charKeyed++ = 'N' ;
+                if(fldAttrib == -1)
+                        wattrset(win, origAttr[col++ - colStart]) ;
+                waddch (win, ' ') ;
+        }
 
-	return(0) ;
+        wmove (win, rowStart, colStart) ;
+        wattrset(win, 0) ;
+
+        return(0) ;
 
 }
-
-

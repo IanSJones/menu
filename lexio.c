@@ -1,7 +1,7 @@
 /*	vi:set ts=4 sw=4:	*/
 #include <stdio.h>
 #include <string.h>
-#include <varargs.h>
+#include <stdarg.h>
 
 #include "lexio.h"
 
@@ -124,41 +124,45 @@ char ch;
 
 /*	printf()-syntax */
 /*VARARGS0*/
-void ijerror(va_alist)
+void ijerror(va_list *va_alist, ...)
+/*
 va_dcl
+*/
 {
-	va_list marker;
+	va_list ap;
 	char *format;
-	va_start(marker);
+	va_start(ap, va_alist);
 
-	format = va_arg(marker, char *);
+	format = va_alist;
 
 	fprintf(stderr,"\rError: File %s(%d): ", lexio_filename,
 										lexio_lineno);
-	vfprintf(stderr,format,marker);
+	vfprintf(stderr,format,ap);
 	fprintf(stderr,"\n");
 	fflush(stderr);
 
-	va_end(marker);
+	va_end(ap);
 	shutdown();
 }
 
 /*	printf()-syntax */
 /*VARARGS0*/
-void ijwarn(va_alist)
+void ijwarn(va_list *va_alist, ...)
+/*
 va_dcl
+*/
 {
-	va_list marker;
+	va_list ap;
 	char *format;
-	va_start(marker);
+	va_start(ap, va_alist);
 
-	format = va_arg(marker, char *);
+	format = va_alist;
 
 	fprintf(stderr,"\rWarning: File %s(%d): ", lexio_filename,
 										lexio_lineno);
-	vfprintf(stderr,format,marker);
+	vfprintf(stderr,format,ap);
 	fprintf(stderr,"\n");
 	fflush(stderr);
 
-	va_end(marker);
+	va_end(ap);
 }

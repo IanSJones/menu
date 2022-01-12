@@ -111,9 +111,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 						strcat (menu->option[(*option)-1]->description, " ");	/* Added 13/11/97 PEC	*/
 						if (debug) fprintf(stderr, "\nrundriver.c:\tshowing option in reverse video");
 						(*ShowKey[i]) (menu, (*option)-1);
-						mvaddch (menu->option[(*option)-1]->row,
-					       	menu->option[(*option)-1]->col-1,
-					       	' ');
+						mvaddch (menu->option[(*option)-1]->row, menu->option[(*option)-1]->col-1, ' ');
 						/*
 						** turn on reverse video 
 						** maintaining current attributes
@@ -180,15 +178,15 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 
 		switch (exitkey)
 		{
-        case KEY_PRINT:
-		 if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_PRINT");
-         ScrnPrnt(stdscr, LINES, COLS, 23) ;
-         continue ;
+        	case KEY_PRINT:
+			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_PRINT");
+         		ScrnPrnt(stdscr, LINES, COLS, 23) ;
+         		continue ;
 
-	   case KEY_SAVE:
-		if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_SAVE");
-		ScrnFile(stdscr, LINES, COLS);
-		break;
+		case KEY_SAVE:
+			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_SAVE");
+			ScrnFile(stdscr, LINES, COLS);
+			break;
 
 		case KEY_LEFT:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_LEFT");
@@ -198,7 +196,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			if (debug > 8) fprintf(stderr, "\nrundriver.c:\tLEFT: option=%d  row=%d  col=%d  ", *option-1,  menu->option[*option-1]->row, menu->option[*option-1]->col);
 			for (j=0; j<=menu->optioncount-1; j++)
 				if (menu->option[j]->col < menu->option[*option-1]->col &&
-					menu->option[j]->col > nextcol)
+						menu->option[j]->col > nextcol)
 				{
 					nextcol=menu->option[j]->col;
 					if (debug > 8) fprintf(stderr, "\nrundriver.c:\tto our left option %d, row=%d, col=%d, nextcol=%d", j, menu->option[j]->row, menu->option[j]->col, nextcol);
@@ -212,7 +210,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 						menu->option[j]->col > nextcol)
 					{
 						nextcol=menu->option[j]->col;
-					if (debug > 8) fprintf(stderr, "\nrundriver.c:\tto our right, nextcol=%d", nextcol);
+						if (debug > 8) fprintf(stderr, "\nrundriver.c:\tto our right, nextcol=%d", nextcol);
 					}
 			}
 
@@ -314,25 +312,23 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 
 		case KEY_TAB:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_TAB");
-			/* A tab will hop forward four options at a time. */
-			if (menu->optioncount > 4)
+			/* A tab will hop forward four, no - ONE options at a time. */
+			if (menu->optioncount > 1)
 			{
-				*option += 4;
+				*option += 1;
 				if (*option > menu->optioncount)
-					*option = 1 + *option - 
-						  menu->optioncount - 1;
+					*option = 1 + *option - menu->optioncount - 1;
 			}
 			else
-				*option = *option >= menu->optioncount ? 1 : 
-					  ++(*option);
+				*option = *option >= menu->optioncount ? 1 : ++(*option);
 			break;
 
 		case KEY_BTAB:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_BTAB");
-			/* A back tab will hop backward 4 options at a time. */
-			if (menu->optioncount > 4)
+			/* A back tab will hop backward 4  no, ONEoptions at a time. */
+			if (menu->optioncount > 1)
 			{
-				*option -= 4;
+				*option -= 1;
 				if (*option < 0)
 					*option = menu->optioncount - abs(*option);
 			}
@@ -389,33 +385,33 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			}
 			break;
 
-	        case 'A':
-	        case 'B':
-	        case 'C':
-	        case 'D':
-	        case 'E':
-	        case 'F':
-	        case 'G':
-	        case 'H':
-	        case 'I':
-	        case 'J':
-	        case 'K':
-	        case 'L':
-	        case 'M':
-	        case 'N':
-	        case 'O':
-	        case 'P':
-	        case 'Q':
-	        case 'R':
-	        case 'S':
-	        case 'T':
-	        case 'U':
-	        case 'V':
-	        case 'W':
-	        case 'X':
-	        case 'Y':
-	        case 'Z':
-	        case ' ':
+		case 'A':
+		case 'B':
+		case 'C':
+		case 'D':
+		case 'E':
+		case 'F':
+		case 'G':
+		case 'H':
+		case 'I':
+		case 'J':
+		case 'K':
+		case 'L':
+		case 'M':
+		case 'N':
+		case 'O':
+		case 'P':
+		case 'Q':
+		case 'R':
+		case 'S':
+		case 'T':
+		case 'U':
+		case 'V':
+		case 'W':
+		case 'X':
+		case 'Y':
+		case 'Z':
+		case ' ':
 			/* character matching */
 			if (debug) fprintf(stderr, "\nrundriver.c:\tcharacter %c", exitkey);
 			sprintf (matchstr, "%s%c", matchstr, exitkey);
@@ -427,8 +423,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 				strcpy (command, menu->option[i]->description+2);
 				str_upper (command);
 				if (debug>2) fprintf(stderr, "\nrundriver.c:\tcomparing %s against %s", matchstr, command);
-				if (strncmp (command, matchstr, 
-				    strlen(matchstr)) == 0)
+				if (strncmp (command, matchstr, strlen(matchstr)) == 0)
 				{
 					MATCHED = TRUE;
 					sprintf (select, "%d", menu->option[i]->opnumber);
@@ -458,7 +453,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			for (i = 0; i < menu->optioncount; i++)
 				if (strcmp (menu->option[i]->keyword, ".EXIT") == 0)
 					RunExit (menu, i, KeyWord, ParseKey, ShowKey, 
-					    RunKey, gnames, gfiles, gindex);
+					RunKey, gnames, gfiles, gindex);
 			return (QUIT);
 
 		case KEY_MAINMENU:
@@ -471,11 +466,11 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 
 		case '!':
 			if (debug) fprintf(stderr, "\nrundriver.c:\tbang");
-		/*
-		**	Shell Option.
-		**	Prompt user for a command to be executed within a 
-		**  shell (system(1)).
-		*/
+			/*
+			**	Shell Option.
+			**	Prompt user for a command to be executed within a 
+			**  shell (system(1)).
+			*/
 			/* clear last command (if any) */
 			select[0] = '\0';
 
@@ -520,13 +515,13 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 
 					sprintf (command, "%s;%s;%s;%s",
 #if BSD || SUN
-			    		"clear",
+				    		"clear",
 #else
-			    		"tput clear",
+				    		"tput clear",
 #endif
-			    		select,
-			    		"echo \"\\n[Press return to continue]\\c\"",
-			    		"read reply");
+				    		select,
+				    		"echo \"\\n[Press return to continue]\\c\"",
+				    		"read reply");
 
 					/* reset_shell_mode (); /* This doesnt work */
 					saveterm();	 /* save 'in curses' settings */
@@ -556,14 +551,12 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 		case KEY_HELP:
 		case KEY_F1:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_HELP or KEY_F1");
-		/*
-		**	Show Help Screen Option.
-		**	Search directories for a menu.hlp file.
-		**	If found display to screen.
-		*/
-			strcpy (command, findfile (helpfilename, ".",
-			    getenv("HELPDIR"), getenv("MENUDIR"),
-			    ""));
+			/*
+			**	Show Help Screen Option.
+			**	Search directories for a menu.hlp file.
+			**	If found display to screen.
+			*/
+			strcpy (command, findfile (helpfilename, ".", getenv("HELPDIR"), getenv("MENUDIR"), ""));
 #ifdef ALARM
 			alarm (0);		/* turn off mail check */
 			signal (SIGALRM, SIG_IGN);
@@ -574,10 +567,10 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			if (MAILCALL)
 				checkmail ();
 #endif
-			clearok (stdscr, TRUE);
-			select[0] ='\0';
-			matchstr[0] ='\0';
-			break;
+				clearok (stdscr, TRUE);
+				select[0] ='\0';
+				matchstr[0] ='\0';
+				break;
 
 		case KEY_GNAME:
 			if (debug) fprintf(stderr, "\nrundriver.c:\tKEY_GNAME");
@@ -626,11 +619,11 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 				/* check if we have a .EXIT option */
 				for (i = 0; i < menu->optioncount; i++)
 					if (strcmp (menu->option[i]->keyword, 
-					    ".EXIT") == 0)
+						    ".EXIT") == 0)
 					{
 						RunExit (menu, i, KeyWord,
-						    ParseKey, ShowKey, RunKey,
-						    gnames, gfiles, gindex);
+							    ParseKey, ShowKey, RunKey,
+							    gnames, gfiles, gindex);
 						break;
 					}
 				return (QUIT);
@@ -681,9 +674,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			*/
 			if (select[0] == KeyHelp || select[0] == KEY_F1)
 			{
-				strcpy (command, findfile (helpfilename, 
-					".", getenv("HELPDIR"), 
-					getenv("MENUDIR"), ""));
+				strcpy (command, findfile (helpfilename, ".", getenv("HELPDIR"), getenv("MENUDIR"), ""));
 #ifdef ALARM
 				alarm (0);		/* turn off mail check */
 				signal (SIGALRM, SIG_IGN);
@@ -730,7 +721,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 			*/
 			for (i = 1; i <= MAXKEYS; i++)
 				if (strcmp (menu->option[*option-1]->keyword, 
-				    KeyWord[i]) == 0)
+					    KeyWord[i]) == 0)
 				{
 					if (RunKey[i] != NULL)
 					{
@@ -740,37 +731,37 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 #endif
 						if (debug) fprintf(stderr, "\nrundriver.c:\tit's a %s", menu->option[*option-1]->keyword);
 #ifdef _USERMAP
-                        /* If we're at the last option go back a level */
-                        /* but if we're at the top terminate instead */
-                        if (menu->optioncount == *option)
-                        {
-                            /* if we're still at the same menu then */
-                            /* we don't want to go to previous but  */
-                            /* to terminate instead                 */
-                            if (depth == 0)
-                                return(QUIT);
-                            else
-                            {
-                                depth--;
-                                flip=0;
-                                return(PREVIOUSMENU);
-                            }
+                        			/* If we're at the last option go back a level */
+                        			/* but if we're at the top terminate instead */
+                        			if (menu->optioncount == *option)
+                        			{
+                            			/* if we're still at the same menu then */
+                            			/* we don't want to go to previous but  */
+                            			/* to terminate instead                 */
+                            			if (depth == 0)
+                                			return(QUIT);
+                            			else
+                            			{
+                                			depth--;
+                                			flip=0;
+                                			return(PREVIOUSMENU);
+                            			}
                         }
-                        /* Only allow RETURN/LINEFEED if the option is a MENU */
-                        if (! strcmp(menu->option[*option-1]->keyword, ".MENU"))
-                        {
-                            flip=1;
-                            depth++;
-                            exitkey = (*RunKey[i]) (menu, *option-1, KeyWord,
-                                ParseKey, ShowKey, RunKey,
-                                gnames, gfiles, gindex);
-                        }
-                        else
-                            flip=0;
+                        			/* Only allow RETURN/LINEFEED if the option is a MENU */
+                        			if (! strcmp(menu->option[*option-1]->keyword, ".MENU"))
+                        			{
+                            				flip=1;
+                            				depth++;
+                            				exitkey = (*RunKey[i]) (menu, *option-1, KeyWord,
+                                				ParseKey, ShowKey, RunKey,
+                                				gnames, gfiles, gindex);
+                        			}
+                        			else
+                            				flip=0;
 #else
-                        exitkey = (*RunKey[i]) (menu, *option-1, KeyWord,
-                            ParseKey, ShowKey, RunKey,
-                            gnames, gfiles, gindex);
+                        			exitkey = (*RunKey[i]) (menu, *option-1, KeyWord,
+                            				ParseKey, ShowKey, RunKey,
+                            				gnames, gfiles, gindex);
 #endif
 						/* .MENU is a special case */
 						if (exitkey == SUBMENU)
@@ -807,9 +798,7 @@ rundriver (KeyWord, RunKey, ShowKey, ParseKey, menu, option, gnames,
 				alarm (0);	/* turn off mail check */
 				signal (SIGALRM, SIG_IGN);
 #endif
-				popmenu (NEWMENU, GOTOMENU, gotorow, gotocol, 
-				    "GOTO MENU", HELPFILE, LINES-2, 
-				    sizeof(gnames[0]), gnames);
+				popmenu (NEWMENU, GOTOMENU, gotorow, gotocol, "GOTO MENU", HELPFILE, LINES-2, sizeof(gnames[0]), gnames);
 
 				move (ErrRow,0);
 				clrtoeol ();

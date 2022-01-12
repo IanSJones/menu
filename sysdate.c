@@ -14,7 +14,7 @@ static	char		*longmon[]=
 		  {"January","February","March","April","May","June",
 		   "July","August","September","October","November","December"};
 
-static	char		*shortday[]= {"Sun","Mon","Tue","Wed","Thr","Fri","Sat"};
+static	char		*shortday[]= {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 
 static	char		*longday[]= {"Sunday","Monday","Tuesday","Wednessday",
 			            "Thursday", "Friday", "Saturday"};

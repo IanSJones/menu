@@ -49,7 +49,8 @@ GetOption (row, col, s)
 		else return(KEY_PREVMENU);
 
 	for (i = col; i <= col+3; i++)	/* blank out prompt field */
-	   mvaddch (row, i, ' ');
+		if (debug>5) fprintf(stderr, "\nGetOption.c:\tblanking out %d, %d", row, i);
+	   	mvaddch (row, i, ' ');
 					/* display default text */
 	while (*ws)
 	{

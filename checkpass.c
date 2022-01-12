@@ -10,6 +10,8 @@
  */
 
 #include <pwd.h>
+#define _XOPEN_SOURCE       /* See feature_test_macros(7) */
+#include <unistd.h>
 
 main(argc, argv)
 int argc;

@@ -5,12 +5,12 @@
 **  RETURNS:	none
 */
 
+#include	 <errno.h>
 #include	<stdlib.h>
 #include	<curses.h>
 #include	<ctype.h>
 #include	"menu.h"
 
-extern	int	errno;
 extern	int	debug;
 extern	int	logfile;
 extern	char	menulogline[];
@@ -143,20 +143,14 @@ RunSystem (menu, opnumber, KeyWord, ParseKey, ShowKey, RunKey,
 
 	write(logfile, menulogline, strlen(menulogline));
 
-	if (debug)
-		fprintf(stderr, "\nRunSystem.c:\trunning the following:\n%s", command);
+	if (debug) fprintf(stderr, "\nRunSystem.c:\tsystem(%s)", command);
 
 	endwin();
-   	rc = system (command);
+   	rc = system(command);
 	refresh();
 
 	going_down=0;
-	if (debug)
-	{
-		fprintf (stderr, 
-			"\nRunSystem.c:\treturn code = %d, errno = %d", 
-			rc, errno);
-	}
+	if (debug) fprintf (stderr, "\nRunSystem.c:\treturn code = %d, errno = %d", rc, errno);
 
 /*  Pending survey on whether majority of users want this or not
 

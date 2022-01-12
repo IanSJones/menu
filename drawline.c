@@ -12,6 +12,7 @@
 #define	CANDRAWGRAPHICS	(enter_alt_charset_mode != NULL  && \
 			 strcmp(enter_alt_charset_mode, "") != 0)
 
+extern int debug;
 
 drawline (win, row, trythis, trythat, box)
 	WINDOW	*win;
@@ -27,6 +28,7 @@ drawline (win, row, trythis, trythat, box)
 	int	attribute;
 	int	boxtype;
 
+	if (debug) fprintf(stderr, "\ndrawline.c\there we are");
 
 	boxtype = trythis;
 	attribute = (boxtype == DumbLine || boxtype == StandoutLine) ? A_NORMAL : A_ALTCHARSET;
@@ -38,6 +40,7 @@ drawline (win, row, trythis, trythat, box)
 	{
 	   case DumbLine:
 		/* draw a dumb line */
+		if (debug) fprintf(stderr, "\ndrawline.c\tDumbLine");
 		hchar = '-';
 		lchar = '+';
 		rchar = '+';
@@ -45,38 +48,43 @@ drawline (win, row, trythis, trythat, box)
 
 	   case StandoutLine:
 		/* draw a standout line */
+		if (debug) fprintf(stderr, "\ndrawline.c\tStandoutLine");
 		attribute = A_STANDOUT;
 		hchar = ' ';
 		lchar = ' ';
 		rchar = ' ';
 		break;
-
 	   case SingleLine:
 		/* attempt to draw a graphic single line */
+		if (debug) fprintf(stderr, "\ndrawline.c\tSingleLine");
 		hchar = 'q';
 		lchar = 't';
 		rchar = 'u';
 		break;
 
 	   case MosaicLine:
+		if (debug) fprintf(stderr, "\ndrawline.c\tMosaicLine");
 		hchar = 'a';
 		lchar = 'a';
 		rchar = 'a';
 		break;
 
 	   case DiamondLine:
+		if (debug) fprintf(stderr, "\ndrawline.c\tDiamondLine");
 		hchar = '`';
 		lchar = '`';
 		rchar = '`';
 		break;
 
 	   case DotLine:
+		if (debug) fprintf(stderr, "\ndrawline.c\tDotLine");
 		hchar = '~';
 		lchar = '~';
 		rchar = '~';
 		break;
 
 	   case PlusLine:
+		if (debug) fprintf(stderr, "\ndrawline.c\tPlusLine");
 		hchar = 'n';
 		lchar = 'n';
 		rchar = 'n';
@@ -108,4 +116,3 @@ drawline (win, row, trythis, trythat, box)
 #endif
 	return (0);
 }
-/* Paul J. Condie  10/88 */

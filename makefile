@@ -47,19 +47,23 @@ LIBDIR =
 ### Hp-UX ###
 #
 # HPUX 64 bit compile - NB libcur_colr won't link at 64 bit
-# CFLAGS = -I$(INCDIR) +DA2.0W -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g
-CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g +DAportable
+# CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g
+### CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -D_XOPEN_SOURCE_EXTENDED -g +DAportable
 # LIBS = -lHcurses -ltermcap -lc -lm -ll -ly
-### LIBS = -lc -lm -ll -lcurses -l:libcur_colr.sl
-LIBS = -lc -lm -ll -lcurses
+# LIBS = -lc -lm -ll -lcurses
+# LIBCRYPT = -lk5crypto
+### LIBS = -lc -lm -ll -lcurses
+### LEX = lex
 #
 #############
 
 ### Linux ###
 #
-# CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -DLINUX -g
-# LEXOPT=-l
-# LIBS = -lcurses -lc -lm -lfl -lcrypt
+CFLAGS = -I$(INCDIR) -D$(OSVER) -DSINGLE -DALARM -DLINUX -g
+LEXOPT=-l
+LIBS = -lcurses -lc -lm -lfl -lcrypt
+LIBCRYPT = -lcrypt
+LEX = flex
 #
 #############
 
@@ -136,41 +140,22 @@ runrealid: runrealid.c
 about:	about.o
 
 about.o: about.c
-	cc +DAportable -o about about.c
-	cc +DAportable -c -D_ROUTINE about.c
-	@echo
-	@echo ============================================
-	@echo Dont forget...
-	@echo --------------
-	@echo If youve changed the about routine
-	@echo youll have to copy the about command
-	@echo into /usr/local/bin on all machines.
-	@echo ============================================
-	@echo
-
+	$(CC) $(CFLAGS) -o about about.c
+	$(CC) $(CFLAGS) -c -D_ROUTINE about.c
 
 #can_i_see: parse_can_i_see.o lexio.o lex_can_i_see.o can_i_see.o 
 
 #can_i_see.o: parse_can_i_see.y lex_can_i_see.l can_i_see.c lexio.h can_i_see.h
 can_i_see.o: parse_can_i_see.o lex_can_i_see.o can_i_see.c lexio.h can_i_see.h
-	cc +DAportable -o can_i_see can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
+	$(CC) $(CFLAGS) -o can_i_see can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
 	rm -f can_i_see.o
-	cc +DAportable -c -D_ROUTINE can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
-	@echo
-	@echo ============================================
-	@echo Dont forget...
-	@echo --------------
-	@echo If youve changed the can_i_see routine
-	@echo youll have to copy the can_i_see command
-	@echo into /usr/local/bin on all machines.
-	@echo ============================================
-	@echo
+	$(CC) $(CFLAGS) -c -D_ROUTINE can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
 
 can_i_seeusermap.o: can_i_see.c lexio.h can_i_see.h parse_can_i_see.y lex_can_i_see.l
-	cc +DAportable -c -ocan_i_seeusermap.o -D_ROUTINE $(CFLAGS) can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
+	$(CC) $(CFLAGS) -c -ocan_i_seeusermap.o -D_ROUTINE $(CFLAGS) can_i_see.c parse_can_i_see.o lexio.o lex_can_i_see.o
 
 checkpass: checkpass.c
-	$(CC) $(CFLAGS) checkpass.c -o $@
+	$(CC) $(CFLAGS) $(LIBCRYPT) checkpass.c -o $@
 
 lock: 	lock.c
 	$(CC) $(CFLAGS) lock.c -o $@
@@ -214,7 +199,7 @@ clean:
 
 Main.o:		Main.c menu.h popmenu.h
 Mainusermap.o:	Main.c menu.h popmenu.h
-		cc +DAportable -c -oMainusermap.o $(CFLAGS) Main.c
+		$(CC) $(CFLAGS) -c -oMainusermap.o $(CFLAGS) Main.c
 ParseOpton.o:	ParseOpton.c menu.h
 ParseBaner.o:	ParseBaner.c menu.h
 ParseBox.o:	ParseBox.c menu.h
@@ -234,13 +219,13 @@ ParAssign.o:	menu.h
 ParseHelpFile.o: ParseHelpFile.c menu.h
 ParseDeSrn.o: 	ParseDeSrn.y LexDeSrn.l menu.h
 		yacc $(YFLAGS) ParseDeSrn.y
-		cc $(CFLAGS) -c y.tab.c -o ParseDeSrn.o
+		$(CC) $(CFLAGS) -c y.tab.c -o ParseDeSrn.o
 #		mv y.tab.o ParseDeSrn.o
 		mv y.tab.h LexDeSrn.h
 		rm -f y.tab.c
 parse_can_i_see.o: parse_can_i_see.y lex_can_i_see.l can_i_see.h lexio.h
 		yacc -l -d -p ij parse_can_i_see.y
-		cc +DAportable -c y.tab.c -o parse_can_i_see.o
+		$(CC) $(CFLAGS) -c y.tab.c -o parse_can_i_see.o
 #		mv y.tab.o parse_can_i_see.o
 		mv y.tab.h lex_can_i_see.h
 		rm -f y.tab.c	
@@ -258,12 +243,12 @@ parsedrive.o:	parsedrive.c menu.h
 showdriver.o:	showdriver.c menu.h 
 rundriver.o:	rundriver.c menu.h terminal.h
 rundriverusermap.o:	rundriver.c menu.h terminal.h
-		cc -c -orundriverusermap.o $(CFLAGS) rundriver.c
+		$(CC) -c -orundriverusermap.o $(CFLAGS) rundriver.c
 LoadKeys.o:	LoadKeys.c menu.h
 EndWindow.o:	EndWindow.c menu.h
 GetOption.o:	menu.h terminal.h
 GetOptionusermap.o:	menu.h terminal.h
-		cc -c -oGetOptionusermap.o $(CFLAGS) GetOption.c
+		$(CC) -c -oGetOptionusermap.o $(CFLAGS) GetOption.c
 SetTerm.o:	menu.h
 setvar.o:	menu.h
 initmenu.o:	menu.h
@@ -271,14 +256,14 @@ keyboard.o:	keyboard.c menu.h
 propeller.o:	propeller.c menu.h
 runscreen.o:	menu.h terminal.h
 LexDeSrn.o: 	LexDeSrn.l ParseDeSrn.y menu.h
-		lex LexDeSrn.l
-		cc -c $(CFLAGS) lex.yy.c
+		$(LEX) LexDeSrn.l
+		$(CC) -c $(CFLAGS) lex.yy.c
 		mv lex.yy.o LexDeSrn.o
 		rm -f lex.yy.c
 		rm -f y.tab.h
 lex_can_i_see.o: lex_can_i_see.l parse_can_i_see.y can_i_see.h lexio.h
-		lex $(LEXOPT) -t lex_can_i_see.l | sed 's/yy/ij/g' > lex.yy.c
-		cc -c $(CFLAGS) lex.yy.c
+		$(LEX) $(LEXOPT) -t lex_can_i_see.l | sed 's/yy/ij/g' > lex.yy.c
+		$(CC) -c $(CFLAGS) lex.yy.c
 		mv lex.yy.o lex_can_i_see.o
 		rm -f lex.yy.c
 AdjField.o:	AdjField.c GetInput.h
@@ -287,7 +272,7 @@ FindSet.o:	FindSet.c GetInput.h
 GetSetLen.o:	GetSetLen.c GetInput.h
 GetInput.o:	GetInput.c GetInput.h keys.h
 GetInputusermap.o:	GetInput.c GetInput.h keys.h
-		cc -c -oGetInputusermap.o $(CFLAGS) GetInput.c
+		$(CC) -c -oGetInputusermap.o $(CFLAGS) GetInput.c
 IsDate.o:	IsDate.c GetInput.h
 IsFldOk.o:	IsFldOk.c GetInput.h
 IsMask.o:	IsMask.c GetInput.h
@@ -296,7 +281,7 @@ IsTime.o:	IsTime.c GetInput.h
 ReDispFld.o:	ReDispFld.c GetInput.h
 ScrnOut.o:	ScrnOut.c GetInput.h
 ScrnOutusermap.o:	ScrnOut.c GetInput.h
-		cc -c -oScrnOutusermap.o $(CFLAGS) ScrnOut.c
+		$(CC) -c -oScrnOutusermap.o $(CFLAGS) ScrnOut.c
 ShowChar.o:	ShowChar.c GetInput.h
 ShowHelp.o:	ShowHelp.c menu.h keys.h GetInput.h
 ShowSet.o:	ShowSet.c GetInput.h

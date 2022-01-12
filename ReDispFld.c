@@ -32,15 +32,21 @@ int   origAttr[] ;   /* original attributes for field */
    if (	fldCharType == SET  ||
    		fldCharType == MENU ||
 		fldCharType == FILE_MANAGER )
+   {
+   	if (debug) fprintf(stderr, "\nReDispFld.c:\tfldCharType SET, MENU or FILE_MANAGER");
       ShowSet(win, rowStart, colStart, -1, fldRange, fldLength, &setNumb, colEnd, charKeyed, origAttr) ;
+   }
    else {
-      if (fldAttrib != -1)
+      if (fldAttrib != -1) {
+   	if (debug) fprintf(stderr, "\nReDispFld.c:\tfldAttrib != -1 (%d)", fldAttrib);
          wattrset(win, fldAttrib) ;
+      }
       col = colStart ;
       wmove(win, rowStart, col) ;
       fldWrk = fldStr ;
 
       if (fldAttrib == -1   &&  fldType ==  MONEY) {
+   	if (debug) fprintf(stderr, "\nReDispFld.c:\tfldType MONEY");
          int   decimalFound, decimalPlaces ;
 
          decimalFound =  FALSE ;
@@ -68,10 +74,15 @@ int   origAttr[] ;   /* original attributes for field */
       while (col < colEnd  &&  *fldWrk != '\0') {
          if (fldAttrib == -1)
             wattrset(win, origAttr[col - colStart] ) ;
-         if (charKeyed [col - colStart] == 'M' && ! include_mask)
+         if (charKeyed [col - colStart] == 'M' && ! include_mask) {
+   	    if (debug>8) fprintf(stderr, "\nReDispFld.c:\tcharKeyed [col - colStart] == 'M' && ! include_mask fldMask=%s", fldMask);
             mvwaddch(win, rowStart, col, *(fldMask + col - colStart) ) ;
+	 }
          else
+	 {
+   	    if (debug>8) fprintf(stderr, "\nReDispFld.c:\tmvwaddch(%d, %d, %d, %c)", win, rowStart, col, *fldWrk);
             mvwaddch(win, rowStart, col, *fldWrk++) ;
+	 }
          col++;
       };
 
@@ -79,28 +90,37 @@ int   origAttr[] ;   /* original attributes for field */
          int   bytesFill ;
 
          bytesFill = fldLength - strlen(fldStr) ;
+   	 if (debug>8) fprintf(stderr, "\nReDispFld.c:\tbytesFill=%d", bytesFill);
          while (bytesFill) {
-            if (fldAttrib == -1)
+            if (fldAttrib == -1) {
+   	       if (debug>8) fprintf(stderr, "\nReDispFld.c:\tfldAttrib=-1");
                wattrset(win, origAttr[col - colStart]);
+	    }
             if (charKeyed [col - colStart] != 'M')
             {
                bytesFill--;
+   	       if (debug>8) fprintf(stderr, "\nReDispFld.c:\tmvwaddch(%d, %d, %d, ' ')", win, rowStart, col);
                mvwaddch(win, rowStart, col++, ' ') ;
             }
             else
             {
+   	       if (debug>8) fprintf(stderr, "\nReDispFld.c:\tmvwaddch(%d, %d, %d, %c)", win, rowStart, col, *fldWrk);
                mvwaddch(win, rowStart, col, *(fldMask + col - colStart) ) ;
                col++;
             }
          }
       }
 
+      if (debug>8) fprintf(stderr, "\nReDispFld.c:\tcol=%d, colEnd=%d", col, colEnd);
+
       while (col < colEnd) 
       {
          if (charKeyed [col - colStart] != 'M')
             mvwaddch(win, rowStart, col, ' ') ;
-         else
+         else {
+   	    if (debug>8) fprintf(stderr, "\nReDispFld.c:\tmvwaddch(%d, %d, %d, %c)", win, rowStart, col, *(fldMask + col - colStart));
             mvwaddch(win, rowStart, col, *(fldMask + col - colStart) ) ;
+	 }
          col++;
       }
 

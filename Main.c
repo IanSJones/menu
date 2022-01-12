@@ -1,5 +1,6 @@
 /*ex:se ts=4:*/
 
+#include 	<stdlib.h>
 #include 	<sys/stat.h>
 #include	<fcntl.h>
 #include	<curses.h>
@@ -36,7 +37,6 @@ main (argc, argv)
 	int		argc;
 	char		*argv[];
 {
-	char		*getenv();
 	char		*menulog;
 	char		menulogname[BUFSIZE];	
 	mode_t		umaskval;
@@ -128,11 +128,20 @@ main (argc, argv)
 
 
 	if (getenv("MENUDIR") == NULL)
-		putenv("MENUDIR=/usr/local/menu/menus");
+	{
+		if (debug) fprintf(stderr, "\nMain.c:\t\tsetting MENUDIR=/usr/local/menus/menus");
+		putenv("MENUDIR=/usr/local/menus/menus");
+	}
 	if (getenv("HELPDIR") == NULL)
-		putenv("HELPDIR=/usr/local/menu/help");
+	{
+		if (debug) fprintf(stderr, "\nMain.c:\t\tsetting HELPDIR=/usr/local/menus/help");
+		putenv("HELPDIR=/usr/local/menus/help");
+	}
 	if (getenv("MENULOG") == NULL)
+	{
+		if (debug) fprintf(stderr, "\nMain.c:\t\tsetting MENULOG=/var/adm/menu.log");
 		putenv("MENULOG=/var/adm/menu.log");
+	}
 
 	/* Initialise the popmenu address array */
 	for (i=0; i<= MAXMENUS+1; THEmenu[++i]=0);
@@ -141,14 +150,12 @@ main (argc, argv)
 	/* If MENULOG isn't set then use /var/adm/log/menu.log	*/
 
 	menulog=getenv("MENULOG");
-	if (menulog == NULL) 
-		strcpy(menulogname, "/var/adm/menu.log");
-	else
-		strcpy(menulogname, menulog);
+	strcpy(menulogname, menulog);
 
 	umaskval=umask(044);			/* save umask value */
 	if ((logfile=open(menulogname,	O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)) == -1)
 	{
+		if (debug) fprintf(stderr, "\nMain.c:\t\tfailed to open %s, trying /tmp/menu.log ", menulogname);
 		strcpy(menulogname, "/tmp/menu.log");
 		if ((logfile=open(menulogname, O_WRONLY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH)) == -1)
 		{
@@ -157,8 +164,7 @@ main (argc, argv)
 			exit(1);
 		}
 	}
-	if (debug)
-		fprintf(stderr, "\nMain.c:\t\t\tmenu logfile name = %s", menulogname);
+	if (debug) fprintf(stderr, "\nMain.c:\t\tmenu logfile name = %s", menulogname);
 
 	umask(umaskval);			/* restore umask value */
 
@@ -176,8 +182,7 @@ main (argc, argv)
 
 	strcat(menulogline, "\n");
 
-	if (debug)
-		fprintf(stderr, "\nMain.c:\t\t\tmenulogline:\n%s", menulogline);
+	if (debug) fprintf(stderr, "\nMain.c:\t\tmenulogline: %s", menulogline);
 
 	write(logfile, menulogline, strlen(menulogline));
 
@@ -203,6 +208,7 @@ main (argc, argv)
 		shutdown ();
 	}
 
+	if (debug>7) fprintf(stderr, "\nMain.c:\t\tcalling LoadKeys");
    	LoadKeys (KeyWord, ParseKey, ShowKey, RunKey);
 
 
@@ -229,18 +235,21 @@ main (argc, argv)
 			break;
 		}
 
+		if (debug>7) fprintf(stderr, "\nMain.c:\t\tcalling initmenu");
       		initmenu (&menu);			/* init menu defaults */
 
 		/* open menu script file */
-		strcpy (filename, findfile (menuname[mptr],
-			getenv("MENUDIR"), ""));
-			if (debug) fprintf(stderr, 
-				"\nMain.c:\t\t\tmenu number=%d\nMain.c:\t\t\tmenu filename=\"%s\"\nMain.c:\t\t\tmenuname[mptr]=%s", mptr, filename, menuname[mptr]);
+		if (debug>7) fprintf(stderr, "\nMain.c:\t\tcalling findfile (%s, %s, \"\")", menuname[mptr], getenv("MENUDIR"));
+		strcpy (filename, findfile (menuname[mptr], getenv("MENUDIR"), ""));
+		if (debug) fprintf(stderr, "\nMain.c:\t\tmenu number=%d\nMain.c:\t\tmenuname[%d]=%s\nMain.c:\t\tMENUDIR=\"%s\"", mptr, mptr, menuname[mptr], getenv("MENUDIR"));
+
       		if ((menufile = fopen (filename, "r")) == NULL)
 		{
             		BEEP;
-            		mvprintw (ErrRow-2, 0, "Unable to locate (%s) file.", 
-					menuname[mptr]);
+			if (debug) fprintf(stderr, "\nMain.c:\t\tUnable to open file: %s/%s\n", getenv("MENUDIR"), menuname[mptr]);
+            		mvprintw (ErrRow-2, 0, "Unable to open file: %s/%s\n", getenv("MENUDIR"), menuname[mptr]);
+			endwin();
+			fprintf(stderr, "\nUnable to open file: %s/%s\n", getenv("MENUDIR"), menuname[mptr]);
             		shutdown ();
 		}
 
@@ -253,7 +262,7 @@ main (argc, argv)
 				gnames, gfiles, &gindex);
       		fclose (menufile);
 
-			if (debug) fprintf(stderr, "\nMain.c:\t\t\tnumber_of_options=%d", number_of_options);
+			if (debug) fprintf(stderr, "\nMain.c:\t\tnumber_of_options=%d", number_of_options);
 
 		switch (parse_rc)
 		{
@@ -296,8 +305,8 @@ main (argc, argv)
 		/* and we're at the main menu then terminate				*/
 		if (number_of_options == 1 && !going_down && mptr == 0) {
 			if (debug) {
-				fprintf(stderr, "\nMain.c:\t\t\twe're coming up the menu structure and");
-				fprintf(stderr, "\nMain.c:\t\t\tthere's only one option in the top menu");
+				fprintf(stderr, "\nMain.c:\t\twe're coming up the menu structure and");
+				fprintf(stderr, "\nMain.c:\t\tthere's only one option in the top menu");
 			}
 			clear();
 			shutdown();
@@ -318,7 +327,7 @@ main (argc, argv)
 				&menuoption[mptr], gnames, gfiles, gindex,
 				gotorow, gotocol);
 
-		if (debug) fprintf(stderr, "\nMain.c:\t\t\tcalling clean_menu for \"%s\"", menu.name);
+		if (debug) fprintf(stderr, "\nMain.c:\t\tcalling clean_menu for \"%s\"", menu.name);
 		clean_menu (&menu);		/* free menu space */
 
 
@@ -358,7 +367,7 @@ main (argc, argv)
 
 shutdown ()
 {
-      if (debug) fprintf(stderr, "\nMain.c:\t\t\tshutting down\n");
+      if (debug) fprintf(stderr, "\nMain.c:\t\tshutting down\n");
       refresh ();
       endwin ();
 #ifdef _USERMAP

@@ -2,6 +2,8 @@
 #include	"GetInput.h"
 #include	<ctype.h>
 
+extern int debug;
+
 AdjField(win, rowStart, colStart, fldAttrib, fldAdjust, colEnd, charKeyed)
 	WINDOW		*win ;		/* Window	    		    */
 	int		rowStart ;
@@ -21,6 +23,7 @@ AdjField(win, rowStart, colStart, fldAttrib, fldAdjust, colEnd, charKeyed)
 	char		*wrkKeyed ;	/* working pointer for charKeyed */
 	char		fillChar ;
 
+	if (debug) fprintf(stderr, "\nAdjField.c\there we are");
 
 	getyx (win, row, col) ;
 

@@ -97,7 +97,7 @@ char *getval (sptr, endch)
 					if (tmpval[i] == '`')
 						tmpval[i]=' ';
 
-				if (debug) fprintf(stderr, "\ngetval.c:\trunning the following:\n%s\ngetval.c:\tendch=%c", tmpval, endch);
+				if (debug) fprintf(stderr, "\ngetval.c:\trunning the following: %s\ngetval.c:\tendch=%c", tmpval, endch);
 
 				/* open pipe and read results */
 				propeller();
